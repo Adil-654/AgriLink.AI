@@ -28,10 +28,11 @@ router.post('/register', async (req, res) => {
       password,
       10
     )
+    const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
 
     const user = await User.create({
-      name,
-      email,
+        name: capitalizedName,
+          email,
       password: hashedPassword,
       role,
     })

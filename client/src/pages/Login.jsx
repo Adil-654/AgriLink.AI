@@ -24,31 +24,30 @@ const Login = () => {
     })
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+const handleSubmit = async (e) => {
+  e.preventDefault()
 
-    try {
-      const response = await api.post(
-        '/auth/login',
-        form
-      )
+  try {
+    const response = await api.post('/auth/login', form)
 
-      localStorage.setItem(
-        'token',
-        response.data.token
-      )
+    const token = response.data.token
+    const user = response.data.user   // must include role
 
-      localStorage.setItem(
-        'user',
-        JSON.stringify(response.data.user)
-      )
+    // ✅ store auth data
+    localStorage.setItem('token', token)
+    localStorage.setItem('user', JSON.stringify(user))
 
+    // ✅ role-based redirect
+    if (user.role === 'admin') {
+      navigate('/admin')
+    } else {
       navigate('/dashboard')
-    } catch (err) {
-      console.log(err)
     }
-  }
 
+  } catch (err) {
+    console.log(err)
+  }
+}
   return (
     <div className='min-h-screen bg-black overflow-hidden flex items-center justify-center relative px-6'>
       

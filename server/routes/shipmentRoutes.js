@@ -131,7 +131,9 @@ router.delete('/:id', async (req, res) => {
 // SHIPMENT ANALYTICS
 // ==========================================
 router.get('/analytics/stats', async (req, res) => {
+
   try {
+
     const totalShipments =
       await Shipment.countDocuments()
 
@@ -150,6 +152,12 @@ router.get('/analytics/stats', async (req, res) => {
         status: 'In Transit',
       })
 
+    // Count users with farmer role
+    const totalFarmers =
+      await User.countDocuments({
+        role: 'farmer',
+      })
+
     const shipments = await Shipment.find()
 
     let totalRevenue = 0
@@ -163,14 +171,18 @@ router.get('/analytics/stats', async (req, res) => {
       deliveredShipments,
       pendingShipments,
       inTransitShipments,
+      totalFarmers,
       totalRevenue,
     })
+
   } catch (err) {
+
+    console.log(err)
+
     res.status(500).json({
       success: false,
       error: err.message,
     })
   }
 })
-
 module.exports = router

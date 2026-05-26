@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const User=require('../models/User')
 
 const shipmentSchema = new mongoose.Schema(
   {
@@ -20,6 +21,10 @@ const shipmentSchema = new mongoose.Schema(
     destination: {
       type: String,
       required: true,
+    },
+    createdBy:{
+      type: mongoose.Schema.Types.ObjectId,
+       ref: 'User' 
     },
 
     status: {

@@ -3,13 +3,20 @@ import {
   Tractor,
   Truck,
   BarChart3,
-  LogOut,
+  Users,
+  Package,
+  ChevronLeft,
 } from 'lucide-react'
 
 import { NavLink } from 'react-router-dom'
 
-const Sidebar = () => {
-  const menu = [
+const Sidebar = ({ toggleSidebar }) => {
+
+  const user = JSON.parse(localStorage.getItem('user'))
+  const isAdmin = user?.role === 'admin'
+
+  // FARMER MENU
+  const farmerMenu = [
     {
       name: 'Dashboard',
       icon: <LayoutDashboard size={20} />,
@@ -32,33 +39,88 @@ const Sidebar = () => {
     },
   ]
 
-    return (
-    <div className='w-72 bg-gradient-to-b from-green-900 to-green-700 text-white p-6 hidden lg:block'>
-      <h1 className='text-3xl font-bold mb-12'>
-        AgriLink AI
-      </h1>
+  // ADMIN MENU (with /admin prefix)
+  const adminMenu = [
+    {
+      name: 'Dashboard',
+      icon: <LayoutDashboard size={20} />,
+      path: '/admin',
+    },
+    {
+      name: 'Farmers',
+      icon: <Users size={20} />,
+      path: '/admin/farmers',
+    },
+    {
+      name: 'Shipments',
+      icon: <Package size={20} />,
+      path: '/admin/shipments',
+    },
+    {
+      name: 'Analytics',
+      icon: <BarChart3 size={20} />,
+      path: '/admin/analytics',
+    },
+  ]
 
-      <div className='space-y-4'>
+  const menu = isAdmin ? adminMenu : farmerMenu
+
+  return (
+    <div className='w-72 min-h-screen bg-gradient-to-b from-green-900 to-green-700 text-white p-6 relative shadow-2xl'>
+
+      {/* TOP */}
+      <div className='flex items-center justify-between mb-12'>
+
+        <div>
+          <h1 className='text-3xl font-bold tracking-wide'>
+            AgriLink AI
+          </h1>
+
+          <p className='text-green-200 text-sm mt-2'>
+            {isAdmin ? 'Admin Panel' : 'Smart Farming Dashboard'}
+          </p>
+        </div>
+
+        <button
+          onClick={toggleSidebar}
+          className='bg-green-800 p-2 rounded-lg hover:bg-green-600 transition'
+        >
+          <ChevronLeft size={22} />
+        </button>
+
+      </div>
+
+      {/* MENU */}
+      <div className='space-y-3'>
+
         {menu.map((item, index) => (
+
           <NavLink
             key={index}
             to={item.path}
-            className='flex items-center gap-4 p-4 rounded-xl hover:bg-green-600 transition duration-300'
+            className={({ isActive }) =>
+              `flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300
+              
+              ${
+                isActive
+                  ? 'bg-white text-green-800 shadow-lg'
+                  : 'hover:bg-green-600'
+              }`
+            }
           >
             {item.icon}
-            <span>{item.name}</span>
-          </NavLink>
-        ))}
-      </div>
 
-      <div className='absolute bottom-10'>
-        <button className='flex items-center gap-3 bg-red-500 px-6 py-3 rounded-xl'>
-          <LogOut size={20} />
-          Logout
-        </button>
+            <span className='font-medium'>
+              {item.name}
+            </span>
+
+          </NavLink>
+
+        ))}
+
       </div>
     </div>
-     )
+  )
 }
 
 export default Sidebar

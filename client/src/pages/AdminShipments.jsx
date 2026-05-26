@@ -1,46 +1,41 @@
 import { useEffect, useState } from 'react'
-
 import MainLayout from '../layouts/MainLayout'
+import api from '../services/api'
+import { motion } from 'framer-motion'
 import StatsCard from '../components/StatsCard'
-import YieldChart from '../components/YieldChart'
-
 import {
+  Users,
   Truck,
   BadgeIndianRupee,
   CheckCircle,
   Clock3,
 } from 'lucide-react'
 
-import { motion } from 'framer-motion'
-import api from '../services/api'
+const AdminShipments = () => {
 
-const Dashboard = () => {
-
-  const [stats, setStats] = useState({
+  const [shipments, setShipments] = useState([])
+    const [stats, setStats] = useState({
     totalShipments: 0,
     deliveredShipments: 0,
     pendingShipments: 0,
     totalRevenue: 0,
   })
 
-  const fetchFarmerStats = async () => {
+  const fetchShipments = async () => {
     try {
-      const user = JSON.parse(localStorage.getItem('user'))
-
-      const res = await api.get(`/shipments/my-stats/${user.id}`)
-      setStats(res.data)
-
+      const res = await api.get('/shipments')
+      setShipments(res.data)
     } catch (err) {
       console.log(err)
     }
   }
 
   useEffect(() => {
-    fetchFarmerStats()
+    fetchShipments()
   }, [])
 
   return (
-    <MainLayout>
+   <MainLayout>
       <div className="p-6 space-y-8 bg-gray-50 min-h-screen">
 
         {/* HEADER */}
@@ -50,7 +45,7 @@ const Dashboard = () => {
           className="bg-gradient-to-r from-green-600 to-emerald-500 text-white p-8 rounded-3xl shadow-lg"
         >
           <h1 className="text-3xl md:text-4xl font-bold">
-            👨‍🌾 Farmer Dashboard
+            👨‍🌾 Admin Dashboard
           </h1>
           <p className="mt-2 text-green-100">
             Track your crops, shipments and earnings in real time
@@ -60,11 +55,11 @@ const Dashboard = () => {
         {/* STATS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-          <StatsCard
+          {/* <StatsCard
             title="My Shipments"
             value={stats.totalShipments}
             icon={<Truck className="text-green-600" />}
-          />
+          /> */}
 
           <StatsCard
             title="Delivered"
@@ -89,7 +84,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           <div className="lg:col-span-2 bg-white p-6 rounded-3xl shadow-md">
-            <YieldChart />
+            {/* <YieldChart /> */}
           </div>
 
           {/* INSIGHTS */}
@@ -129,4 +124,4 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard
+export default AdminShipments   // ✅ THIS IS REQUIRED
