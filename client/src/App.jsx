@@ -1,31 +1,30 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Login from './pages/Login'
-import Register from './pages/Register'
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
-import Dashboard from './pages/Dashboard'
-import CropPrediction from './pages/CropPrediction'
-import SupplyChain from './pages/SupplyChain'
-import Analytics from './pages/Analytics'
+import Dashboard from "./pages/Dashboard";
+import CropPrediction from "./pages/CropPrediction";
+import SupplyChain from "./pages/SupplyChain";
+import Analytics from "./pages/Analytics";
 
-import AdminDashboard from './pages/AdminDashboard'
-import AdminFarmers from './pages/AdminFarmers'
-import AdminShipments from './pages/AdminShipments'
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminFarmers from "./pages/AdminFarmers";
+import AdminShipments from "./pages/AdminShipments";
 
-import ProtectedRoute from './components/ProtectedRoute'
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         {/* ================= PUBLIC ================= */}
-        <Route path='/' element={<Login />} />
-        <Route path='/register' element={<Register />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* ================= FARMER ROUTES ================= */}
         <Route
-          path='/dashboard'
+          path="/dashboard"
           element={
             <ProtectedRoute role="farmer">
               <Dashboard />
@@ -34,7 +33,7 @@ function App() {
         />
 
         <Route
-          path='/supply-chain'
+          path="/supply-chain"
           element={
             <ProtectedRoute role="farmer">
               <SupplyChain />
@@ -43,7 +42,7 @@ function App() {
         />
 
         <Route
-          path='/prediction'
+          path="/prediction"
           element={
             <ProtectedRoute role="farmer">
               <CropPrediction />
@@ -52,7 +51,7 @@ function App() {
         />
 
         <Route
-          path='/analytics'
+          path="/analytics"
           element={
             <ProtectedRoute role="farmer">
               <Analytics />
@@ -62,7 +61,7 @@ function App() {
 
         {/* ================= ADMIN ROUTES (NESTED) ================= */}
         <Route
-          path='/admin'
+          path="/admin"
           element={
             <ProtectedRoute role="admin">
               <AdminDashboard />
@@ -71,7 +70,7 @@ function App() {
         />
 
         <Route
-          path='/admin/farmers'
+          path="/admin/farmers"
           element={
             <ProtectedRoute role="admin">
               <AdminFarmers />
@@ -80,7 +79,7 @@ function App() {
         />
 
         <Route
-          path='/admin/shipments'
+          path="/admin/shipments"
           element={
             <ProtectedRoute role="admin">
               <AdminShipments />
@@ -96,10 +95,9 @@ function App() {
             </ProtectedRoute>
           }
         /> */}
-
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

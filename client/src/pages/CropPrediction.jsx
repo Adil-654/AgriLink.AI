@@ -1,58 +1,64 @@
-import { useState } from 'react'
-import MainLayout from '../layouts/MainLayout'
+import { useState } from "react";
+import axios from "axios";
+import MainLayout from "../layouts/MainLayout";
 
 const CropPrediction = () => {
   const [form, setForm] = useState({
-    soilType: '',
-    rainfall: '',
-    season: '',
-  })
+    soilType: "",
+    rainfall: "",
+    season: "",
+  });
 
-  const [result, setResult] = useState(null)
+  const [result, setResult] = useState(null);
 
   const handleChange = (e) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const response = await api.post('/predict/crop', form)
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/predict", form);
 
-    setResult(response.data)
-  }
+      setResult(response.data);
+    } catch (error) {
+      console.log(error);
+      alert("Prediction Failed");
+    }
+  };
 
   return (
     <MainLayout>
-      <div className='max-w-4xl mx-auto bg-white p-10 rounded-3xl shadow-lg'>
-        <h1 className='text-4xl font-bold text-green-700 mb-8'>
+      <div className="max-w-4xl mx-auto bg-white p-10 rounded-3xl shadow-lg">
+        <h1 className="text-4xl font-bold text-green-700 mb-8">
           AI Crop Prediction
         </h1>
 
-        <form onSubmit={handleSubmit} className='space-y-6'>
+        <form onSubmit={handleSubmit} className="space-y-6">
           <input
-            type='text'
-            placeholder='Enter Soil Type'
-            name='soilType'
+            type="text"
+            placeholder="Enter Soil Type"
+            name="soilType"
             onChange={handleChange}
-            className='w-full border p-4 rounded-2xl outline-none focus:border-green-600'
+            className="w-full border p-4 rounded-2xl outline-none focus:border-green-600"
           />
 
           <input
-            type='number'
-            placeholder='Enter Rainfall'
-            name='rainfall'
+            type="number"
+            placeholder="Enter Rainfall"
+            name="rainfall"
             onChange={handleChange}
-            className='w-full border p-4 rounded-2xl outline-none focus:border-green-600'
+            className="w-full border p-4 rounded-2xl outline-none focus:border-green-600"
           />
 
           <select
-            name='season'
+            name="season"
             onChange={handleChange}
-            className='w-full border p-4 rounded-2xl outline-none focus:border-green-600'
+            className="w-full border p-4 rounded-2xl outline-none focus:border-green-600"
           >
             <option>Select Season</option>
             <option>Summer</option>
@@ -60,29 +66,29 @@ const CropPrediction = () => {
             <option>Monsoon</option>
           </select>
 
-          <button className='bg-green-700 hover:bg-green-800 transition text-white w-full py-4 rounded-2xl text-lg font-semibold'>
+          <button className="bg-green-700 hover:bg-green-800 transition text-white w-full py-4 rounded-2xl text-lg font-semibold">
             Predict Crop
           </button>
         </form>
 
         {result && (
-          <div className='mt-10 bg-green-100 p-8 rounded-3xl'>
-            <h2 className='text-3xl font-bold text-green-800'>
+          <div className="mt-10 bg-green-100 p-8 rounded-3xl">
+            <h2 className="text-3xl font-bold text-green-800">
               Prediction Result
             </h2>
 
-            <p className='mt-4 text-xl'>
+            <p className="mt-4 text-xl">
               Recommended Crop: {result.recommendedCrop}
             </p>
 
-            <p className='mt-2 text-lg'>
+            <p className="mt-2 text-lg">
               Expected Yield: {result.expectedYield}
             </p>
           </div>
         )}
       </div>
     </MainLayout>
-  )
-}
+  );
+};
 
-export default CropPrediction
+export default CropPrediction;

@@ -1,56 +1,51 @@
-import { useState } from 'react'
+import { useState } from "react";
 
-import {
-  useNavigate,
-  Link,
-} from 'react-router-dom'
+import { useNavigate, Link } from "react-router-dom";
 
-import { motion } from 'framer-motion'
+import { motion } from "framer-motion";
 
-import api from '../services/api'
+import api from "../services/api";
 
 const Login = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    email: '',
-    password: '',
-  })
+    email: "",
+    password: "",
+  });
 
   const handleChange = (e) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
-const handleSubmit = async (e) => {
-  e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    const response = await api.post('/auth/login', form)
+    try {
+      const response = await api.post("/auth/login", form);
 
-    const token = response.data.token
-    const user = response.data.user   // must include role
+      const token = response.data.token;
+      const user = response.data.user; // must include role
 
-    // ✅ store auth data
-    localStorage.setItem('token', token)
-    localStorage.setItem('user', JSON.stringify(user))
+      // ✅ store auth data
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-    // ✅ role-based redirect
-    if (user.role === 'admin') {
-      navigate('/admin')
-    } else {
-      navigate('/dashboard')
+      // ✅ role-based redirect
+      if (user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.log(err);
     }
-
-  } catch (err) {
-    console.log(err)
-  }
-}
+  };
   return (
-    <div className='min-h-screen bg-black overflow-hidden flex items-center justify-center relative px-6'>
-      
+    <div className="min-h-screen bg-black overflow-hidden flex items-center justify-center relative px-6">
       {/* Animated Background */}
       <motion.div
         animate={{
@@ -60,9 +55,9 @@ const handleSubmit = async (e) => {
         transition={{
           repeat: Infinity,
           duration: 20,
-          ease: 'linear',
+          ease: "linear",
         }}
-        className='absolute w-[700px] h-[700px] bg-green-500/20 rounded-full blur-3xl'
+        className="absolute w-[700px] h-[700px] bg-green-500/20 rounded-full blur-3xl"
       />
 
       <motion.div
@@ -73,7 +68,7 @@ const handleSubmit = async (e) => {
           repeat: Infinity,
           duration: 6,
         }}
-        className='absolute top-20 right-20 w-72 h-72 bg-emerald-400/20 rounded-full blur-3xl'
+        className="absolute top-20 right-20 w-72 h-72 bg-emerald-400/20 rounded-full blur-3xl"
       />
 
       {/* Main Glass Container */}
@@ -89,12 +84,10 @@ const handleSubmit = async (e) => {
         transition={{
           duration: 0.8,
         }}
-        className='relative z-10 w-full max-w-6xl grid lg:grid-cols-2 bg-white/10 border border-white/10 backdrop-blur-2xl rounded-[40px] overflow-hidden shadow-[0_0_60px_rgba(0,255,120,0.15)]'
+        className="relative z-10 w-full max-w-6xl grid lg:grid-cols-2 bg-white/10 border border-white/10 backdrop-blur-2xl rounded-[40px] overflow-hidden shadow-[0_0_60px_rgba(0,255,120,0.15)]"
       >
-        
         {/* LEFT SIDE */}
-        <div className='relative hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-green-900/40 to-black overflow-hidden'>
-          
+        <div className="relative hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-green-900/40 to-black overflow-hidden">
           {/* Floating Shapes */}
           <motion.div
             animate={{
@@ -103,9 +96,9 @@ const handleSubmit = async (e) => {
             transition={{
               repeat: Infinity,
               duration: 15,
-              ease: 'linear',
+              ease: "linear",
             }}
-            className='absolute top-10 left-10 w-32 h-32 border border-green-400/20 rounded-3xl'
+            className="absolute top-10 left-10 w-32 h-32 border border-green-400/20 rounded-3xl"
           />
 
           <motion.div
@@ -115,13 +108,13 @@ const handleSubmit = async (e) => {
             transition={{
               repeat: Infinity,
               duration: 18,
-              ease: 'linear',
+              ease: "linear",
             }}
-            className='absolute bottom-10 right-10 w-40 h-40 border border-green-300/10 rounded-full'
+            className="absolute bottom-10 right-10 w-40 h-40 border border-green-300/10 rounded-full"
           />
 
           {/* Text */}
-          <div className='relative z-10'>
+          <div className="relative z-10">
             <motion.h1
               initial={{
                 x: -50,
@@ -134,7 +127,7 @@ const handleSubmit = async (e) => {
               transition={{
                 duration: 1,
               }}
-              className='text-6xl font-black text-white leading-tight'
+              className="text-6xl font-black text-white leading-tight"
             >
               Smart
               <br />
@@ -151,12 +144,10 @@ const handleSubmit = async (e) => {
               transition={{
                 delay: 0.6,
               }}
-              className='mt-6 text-gray-300 text-sm leading-8 max-w-md'
+              className="mt-6 text-gray-300 text-sm leading-8 max-w-md"
             >
-              AI-powered agriculture ecosystem
-              with intelligent supply chain,
-              weather analytics and rural
-              development solutions.
+              AI-powered agriculture ecosystem with intelligent supply chain,
+              weather analytics and rural development solutions.
             </motion.p>
           </div>
 
@@ -169,15 +160,14 @@ const handleSubmit = async (e) => {
               repeat: Infinity,
               duration: 4,
             }}
-            src='https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=1200&auto=format&fit=crop'
-            alt='Agriculture'
-            className='relative z-10 w-full h-[320px] object-cover rounded-[30px] mt-10 shadow-2xl'
+            src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=1200&auto=format&fit=crop"
+            alt="Agriculture"
+            className="relative z-10 w-full h-[320px] object-cover rounded-[30px] mt-10 shadow-2xl"
           />
         </div>
 
         {/* RIGHT SIDE LOGIN */}
-        <div className='flex items-center justify-center p-8 md:p-14'>
-          
+        <div className="flex items-center justify-center p-8 md:p-14">
           <motion.form
             onSubmit={handleSubmit}
             initial={{
@@ -191,9 +181,8 @@ const handleSubmit = async (e) => {
             transition={{
               duration: 0.8,
             }}
-            className='w-full max-w-sm'
+            className="w-full max-w-sm"
           >
-            
             {/* Logo */}
             <motion.div
               animate={{
@@ -203,46 +192,42 @@ const handleSubmit = async (e) => {
                 repeat: Infinity,
                 duration: 3,
               }}
-              className='mb-10'
+              className="mb-10"
             >
-              <h1 className='text-5xl font-black text-white'>
-                Login
-              </h1>
+              <h1 className="text-5xl font-black text-white">Login</h1>
 
-              <p className='text-gray-400 text-sm mt-3'>
+              <p className="text-gray-400 text-sm mt-3">
                 Access your agriculture dashboard
               </p>
             </motion.div>
 
             {/* Inputs */}
-            <div className='space-y-5'>
-              
+            <div className="space-y-5">
               <motion.input
                 whileFocus={{
                   scale: 1.03,
                 }}
-                type='email'
-                name='email'
-                placeholder='Email Address'
+                type="email"
+                name="email"
+                placeholder="Email Address"
                 onChange={handleChange}
-                className='w-full bg-white/10 border border-white/10 text-white placeholder:text-gray-400 p-4 rounded-2xl outline-none focus:border-green-400 transition-all'
+                className="w-full bg-white/10 border border-white/10 text-white placeholder:text-gray-400 p-4 rounded-2xl outline-none focus:border-green-400 transition-all"
               />
 
               <motion.input
                 whileFocus={{
                   scale: 1.03,
                 }}
-                type='password'
-                name='password'
-                placeholder='Password'
+                type="password"
+                name="password"
+                placeholder="Password"
                 onChange={handleChange}
-                className='w-full bg-white/10 border border-white/10 text-white placeholder:text-gray-400 p-4 rounded-2xl outline-none focus:border-green-400 transition-all'
+                className="w-full bg-white/10 border border-white/10 text-white placeholder:text-gray-400 p-4 rounded-2xl outline-none focus:border-green-400 transition-all"
               />
             </div>
 
             {/* Buttons */}
-            <div className='space-y-4 mt-8'>
-              
+            <div className="space-y-4 mt-8">
               <motion.button
                 whileHover={{
                   scale: 1.04,
@@ -250,12 +235,12 @@ const handleSubmit = async (e) => {
                 whileTap={{
                   scale: 0.95,
                 }}
-                className='w-full bg-green-500 hover:bg-green-600 text-black font-bold py-4 rounded-2xl transition-all shadow-[0_0_25px_rgba(0,255,120,0.4)]'
+                className="w-full bg-green-500 hover:bg-green-600 text-black font-bold py-4 rounded-2xl transition-all shadow-[0_0_25px_rgba(0,255,120,0.4)]"
               >
                 Login
               </motion.button>
 
-              <Link to='/register'>
+              <Link to="/register">
                 <motion.button
                   whileHover={{
                     scale: 1.04,
@@ -263,8 +248,8 @@ const handleSubmit = async (e) => {
                   whileTap={{
                     scale: 0.95,
                   }}
-                  type='button'
-                  className='w-full bg-white/10 hover:bg-white/20 border border-white/10 text-white py-4 rounded-2xl transition-all'
+                  type="button"
+                  className="w-full bg-white/10 hover:bg-white/20 border border-white/10 text-white py-4 rounded-2xl transition-all"
                 >
                   Create Account
                 </motion.button>
@@ -280,7 +265,7 @@ const handleSubmit = async (e) => {
                 repeat: Infinity,
                 duration: 4,
               }}
-              className='text-center text-xs text-gray-500 mt-10'
+              className="text-center text-xs text-gray-500 mt-10"
             >
               Powered by AI & Smart Rural Innovation
             </motion.p>
@@ -288,7 +273,7 @@ const handleSubmit = async (e) => {
         </div>
       </motion.div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
