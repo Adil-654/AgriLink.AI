@@ -1,9 +1,38 @@
 soil,rainfall,season,crop
 Black Soil,200,Summer,Cotton
+Black Soil,250,Summer,Cotton
 Black Soil,300,Monsoon,Rice
+Black Soil,180,Winter,Wheat
+Black Soil,350,Monsoon,Rice
+
 Red Soil,100,Summer,Groundnut
+Red Soil,120,Summer,Groundnut
+Red Soil,200,Winter,Wheat
+Red Soil,320,Monsoon,Rice
+Red Soil,80,Summer,Millet
+
 Alluvial Soil,150,Winter,Wheat
+Alluvial Soil,170,Winter,Wheat
+Alluvial Soil,280,Monsoon,Rice
+Alluvial Soil,130,Summer,Maize
+Alluvial Soil,350,Monsoon,Rice
+
 Laterite Soil,250,Monsoon,Tea
+Laterite Soil,220,Summer,Tea
+Laterite Soil,180,Winter,Coffee
+Laterite Soil,300,Monsoon,Rice
+
+Rocky Soil,70,Winter,Millet
 Rocky Soil,80,Summer,Millet
+Rocky Soil,120,Summer,Groundnut
+Rocky Soil,200,Monsoon,Rice
+
 Clay Soil,350,Monsoon,Rice
+Clay Soil,280,Monsoon,Rice
+Clay Soil,150,Winter,Wheat
+Clay Soil,100,Summer,Maize
+
 Sandy Soil,120,Summer,Watermelon
+Sandy Soil,90,Summer,Millet
+Sandy Soil,140,Winter,Groundnut
+Sandy Soil,220,Monsoon,Sugarcane

@@ -21,16 +21,11 @@
       "Sandy Soil",
     ];
 
-    const rainfallOptions = [
-      50,
-      100,
-      150,
-      200,
-      250,
-      300,
-      350,
-      400,
-    ];
+  const rainfallOptions = [
+  50, 80, 100, 120, 150,
+  180, 200, 220, 250,
+  280, 300, 320, 350, 400
+];
 
     const seasons = ["Summer", "Winter", "Monsoon"];
 
@@ -43,6 +38,7 @@
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setResult(null);
 
     try {
 
@@ -60,8 +56,9 @@
     }
   };
 const cropImages = {
+
   Rice:
-    "https://images.unsplash.com/photo-1536055895387-5b7b1c3b7f1f?w=1200",
+    "https://t4.ftcdn.net/jpg/05/16/35/47/360_F_516354718_dPoyJgoRz2CQPNUuzzBbc6JCCfMRwrD9.jpg",
 
   Wheat:
     "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=1200",
@@ -80,6 +77,16 @@ const cropImages = {
 
   Watermelon:
     "https://images.unsplash.com/photo-1563114773-84221bd62daa?w=1200",
+
+  Coffee:
+    "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200",
+
+  Sugarcane:
+    "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=1200",
+
+  Maize:
+    "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=1200",
+
 };
     return (
       <MainLayout>
@@ -151,13 +158,15 @@ const cropImages = {
       <div className="grid md:grid-cols-2 gap-10 p-8 md:p-12 items-center">
 
         {/* LEFT IMAGE */}
-        <div className="relative group overflow-hidden rounded-[30px]">
+<div className="relative group overflow-hidden rounded-[30px] animate-[float_4s_ease-in-out_infinite]">
 
           <img
-            src={cropImages[result.recommendedCrop]}
+           src={
+  cropImages[result.recommendedCrop] ||
+  "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=1200"
+}
             alt={result.recommendedCrop}
-            className="w-full h-[350px] object-cover rounded-[30px] transition duration-700 group-hover:scale-110"
-          />
+className="w-full h-[350px] object-cover rounded-[30px] transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"          />
 
           {/* Overlay */}
           <div className="absolute inset-0 bg-black/20"></div>
