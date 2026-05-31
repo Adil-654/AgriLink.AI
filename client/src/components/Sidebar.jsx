@@ -11,11 +11,9 @@ import {
 import { NavLink } from 'react-router-dom'
 
 const Sidebar = ({ toggleSidebar }) => {
-
   const user = JSON.parse(localStorage.getItem('user'))
   const isAdmin = user?.role === 'admin'
 
-  // FARMER MENU
   const farmerMenu = [
     {
       name: 'Dashboard',
@@ -39,7 +37,6 @@ const Sidebar = ({ toggleSidebar }) => {
     },
   ]
 
-  // ADMIN MENU (with /admin prefix)
   const adminMenu = [
     {
       name: 'Dashboard',
@@ -66,58 +63,96 @@ const Sidebar = ({ toggleSidebar }) => {
   const menu = isAdmin ? adminMenu : farmerMenu
 
   return (
-    <div className='w-72 min-h-screen bg-gradient-to-b from-green-900 to-green-700 text-white p-6 relative shadow-2xl'>
-
+    <div
+      className={`w-72 min-h-screen p-6 relative shadow-2xl text-white transition-all duration-300 ${
+        isAdmin
+          ? 'bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900'
+          : 'bg-gradient-to-b from-green-900 to-green-700'
+      }`}
+    >
       {/* TOP */}
       <div className='flex items-center justify-between mb-12'>
-
         <div>
           <h1 className='text-3xl font-bold tracking-wide'>
-            AgriLink AI
+            {isAdmin ? 'AgriLink Admin' : 'AgriLink AI'}
           </h1>
 
-          <p className='text-green-200 text-sm mt-2'>
-            {isAdmin ? 'Admin Panel' : 'Smart Farming Dashboard'}
+          <p
+            className={`text-sm mt-2 ${
+              isAdmin ? 'text-indigo-300' : 'text-green-200'
+            }`}
+          >
+            {isAdmin
+              ? 'Control & Intelligence Panel'
+              : 'Smart Farming Dashboard'}
           </p>
         </div>
 
         <button
           onClick={toggleSidebar}
-          className='bg-green-800 p-2 rounded-lg hover:bg-green-600 transition'
+          className={`p-2 rounded-xl transition ${
+            isAdmin
+              ? 'bg-indigo-800 hover:bg-indigo-700'
+              : 'bg-green-800 hover:bg-green-600'
+          }`}
         >
           <ChevronLeft size={22} />
         </button>
-
       </div>
 
       {/* MENU */}
       <div className='space-y-3'>
-
         {menu.map((item, index) => (
-
           <NavLink
             key={index}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300
-              
-              ${
+              `flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 backdrop-blur-md ${
                 isActive
-                  ? 'bg-white text-green-800 shadow-lg'
+                  ? isAdmin
+                    ? 'bg-indigo-500/30 border border-indigo-400 text-white shadow-lg'
+                    : 'bg-white text-green-800 shadow-lg'
+                  : isAdmin
+                  ? 'hover:bg-indigo-800/40 text-indigo-200'
                   : 'hover:bg-green-600'
               }`
             }
           >
             {item.icon}
-
             <span className='font-medium'>
               {item.name}
             </span>
-
           </NavLink>
-
         ))}
+      </div>
 
+      {/* FOOTER */}
+      <div
+        className={`absolute bottom-6 left-6 right-6 rounded-2xl p-4 text-center backdrop-blur-md ${
+          isAdmin
+            ? 'bg-indigo-900/40 border border-indigo-700'
+            : 'bg-green-800'
+        }`}
+      >
+        <p
+          className={`text-sm ${
+            isAdmin ? 'text-indigo-300' : 'text-green-200'
+          }`}
+        >
+          Logged in as
+        </p>
+
+        <p className='font-semibold mt-1'>
+          {user?.name || 'User'}
+        </p>
+
+        <p
+          className={`text-xs mt-1 uppercase ${
+            isAdmin ? 'text-indigo-300' : 'text-green-300'
+          }`}
+        >
+          {isAdmin ? 'Administrator' : 'Farmer'}
+        </p>
       </div>
     </div>
   )

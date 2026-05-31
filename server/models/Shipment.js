@@ -1,5 +1,5 @@
-const mongoose = require('mongoose')
-const User=require('../models/User')
+const mongoose = require("mongoose");
+const User = require("../models/User");
 
 const shipmentSchema = new mongoose.Schema(
   {
@@ -17,23 +17,30 @@ const shipmentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
     destination: {
       type: String,
       required: true,
     },
-    createdBy:{
+    pricePerKg: {
+      type: Number,
+      default: 0,
+    },
+    revenue: {
+      type: Number,
+      default: 0,
+    },
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-       ref: 'User' 
+      ref: "User",
     },
 
     status: {
       type: String,
-      enum: ['Pending', 'In Transit', 'Delivered'],
-      default: 'Pending',
+      enum: ["Pending", "In Transit", "Delivered"],
+      default: "Pending",
     },
   },
-  { timestamps: true }
-)
+  { timestamps: true },
+);
 
-module.exports = mongoose.model('Shipment', shipmentSchema)
+module.exports = mongoose.model("Shipment", shipmentSchema);

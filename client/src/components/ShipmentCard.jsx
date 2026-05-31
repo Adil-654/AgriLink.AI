@@ -1,25 +1,8 @@
 import { Truck } from 'lucide-react'
-import api from '../services/api'
 
-const ShipmentCard = ({
-  shipment,
-  fetchShipments,
-}) => {
-  const updateStatus = async (status) => {
-    try {
-      await api.put(
-        `/shipments/${shipment._id}`,
-        { status }
-      )
-
-      fetchShipments()
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
+const ShipmentCard = ({ shipment }) => {
   return (
-    <div className='bg-white rounded-3xl p-6 shadow-md hover:shadow-xl transition-all'>
+    <div className='bg-white rounded-3xl p-6 shadow-md'>
       <div className='flex justify-between items-start'>
         <div>
           <div className='flex items-center gap-3'>
@@ -31,46 +14,41 @@ const ShipmentCard = ({
           </div>
 
           <p className='text-gray-500 mt-4'>
-            Farmer: {shipment.farmerName}
-          </p>
-
-          <p className='text-gray-500'>
             Destination: {shipment.destination}
           </p>
 
           <p className='text-gray-500'>
             Quantity: {shipment.quantity} KG
           </p>
+
+          <p className='text-gray-500'>
+            Price: ₹{shipment.pricePerKg || 0}/KG
+          </p>
+
+          <p className='text-green-700 font-semibold'>
+            Estimated Revenue: ₹{shipment.revenue || 0}
+          </p>
+
+          <p className='text-gray-500'>
+            Created:{' '}
+            {new Date(shipment.createdAt).toLocaleDateString()}
+          </p>
         </div>
 
-        <div className='flex flex-col gap-4'>
-          <span
-            className={`
-              px-5 py-2 rounded-full text-white font-semibold text-sm text-center
-              ${
-                shipment.status === 'Delivered'
-                  ? 'bg-green-600'
-                  : shipment.status === 'In Transit'
-                  ? 'bg-yellow-500'
-                  : 'bg-red-500'
-              }
-            `}
-          >
-            {shipment.status}
-          </span>
-
-          <select
-            onChange={(e) =>
-              updateStatus(e.target.value)
+        <span
+          className={`
+            px-5 py-2 rounded-full text-white font-semibold text-sm
+            ${
+              shipment.status === 'Delivered'
+                ? 'bg-green-600'
+                : shipment.status === 'In Transit'
+                ? 'bg-yellow-500'
+                : 'bg-red-500'
             }
-            value={shipment.status}
-            className='border p-3 rounded-xl'
-          >
-            <option>Pending</option>
-            <option>In Transit</option>
-            <option>Delivered</option>
-          </select>
-        </div>
+          `}
+        >
+          {shipment.status}
+        </span>
       </div>
     </div>
   )

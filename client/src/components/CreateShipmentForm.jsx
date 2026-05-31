@@ -1,34 +1,74 @@
 import { useState } from 'react'
 import api from '../services/api'
 
+const cropList = [
+  'Cotton',
+  'Rice',
+  'Wheat',
+  'Groundnut',
+  'Millet',
+  'Maize',
+  'Tea',
+  'Coffee',
+  'Watermelon',
+  'Sugarcane',
+]
+
 const CreateShipmentForm = ({ fetchShipments }) => {
+  const user = JSON.parse(localStorage.getItem('user'))
+
   const [form, setForm] = useState({
     crop: '',
     quantity: '',
-    farmerName: '',
     destination: '',
   })
 
+  const [suggestions, setSuggestions] = useState([])
+
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    })
+    const { name, value } = e.target
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+
+    // ✅ ONLY for crop input
+    if (name === 'crop') {
+      const filtered =
+        value.trim() === ''
+          ? []
+          : cropList.filter((c) =>
+              c.toLowerCase().startsWith(value.toLowerCase())
+            )
+
+      setSuggestions(filtered)
+    }
+  }
+
+  const selectCrop = (crop) => {
+    setForm((prev) => ({ ...prev, crop }))
+    setSuggestions([])
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    await api.post('/shipments/create', form)
+    await api.post('/shipments/create', {
+      ...form,
+      farmerName: user?.name,
+      userId: user?._id,
+    })
 
     fetchShipments()
 
     setForm({
       crop: '',
       quantity: '',
-      farmerName: '',
       destination: '',
     })
+
+    setSuggestions([])
   }
 
   return (
@@ -41,14 +81,33 @@ const CreateShipmentForm = ({ fetchShipments }) => {
         onSubmit={handleSubmit}
         className='grid grid-cols-1 md:grid-cols-2 gap-6'
       >
-        <input
-          type='text'
-          name='crop'
-          placeholder='Crop Name'
-          value={form.crop}
-          onChange={handleChange}
-          className='border p-4 rounded-2xl'
-        />
+        {/* 🌾 CROP INPUT */}
+        <div className='relative'>
+          <input
+            type='text'
+            name='crop'
+            placeholder='Crop Name'
+            value={form.crop}
+            onChange={handleChange}
+            className='border p-4 rounded-2xl w-full'
+            autoComplete='off'
+          />
+
+          {/* ✅ DROPDOWN */}
+          {suggestions.length > 0 && (
+            <ul className='absolute left-0 right-0 top-full mt-2 bg-white border rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto'>
+              {suggestions.map((item, index) => (
+                <li
+                  key={index}
+                  onClick={() => selectCrop(item)}
+                  className='p-3 cursor-pointer hover:bg-green-100'
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         <input
           type='number'
@@ -61,20 +120,19 @@ const CreateShipmentForm = ({ fetchShipments }) => {
 
         <input
           type='text'
-          name='farmerName'
-          placeholder='Farmer Name'
-          value={form.farmerName}
-          onChange={handleChange}
-          className='border p-4 rounded-2xl'
-        />
-
-        <input
-          type='text'
           name='destination'
           placeholder='Destination'
           value={form.destination}
           onChange={handleChange}
           className='border p-4 rounded-2xl'
+        />
+
+        {/* 👨‍🌾 AUTO FARMER NAME */}
+        <input
+          type='text'
+          value={user?.name}
+          disabled
+          className='border p-4 rounded-2xl bg-gray-100 text-gray-600'
         />
 
         <button className='bg-green-700 hover:bg-green-800 text-white py-4 rounded-2xl col-span-1 md:col-span-2'>

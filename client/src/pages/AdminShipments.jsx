@@ -3,8 +3,8 @@ import MainLayout from '../layouts/MainLayout'
 import api from '../services/api'
 import { motion } from 'framer-motion'
 import StatsCard from '../components/StatsCard'
+
 import {
-  Users,
   Truck,
   BadgeIndianRupee,
   CheckCircle,
@@ -12,9 +12,10 @@ import {
 } from 'lucide-react'
 
 const AdminShipments = () => {
-
   const [shipments, setShipments] = useState([])
-    const [stats, setStats] = useState({
+  const [loading, setLoading] = useState(true)
+
+  const [stats, setStats] = useState({
     totalShipments: 0,
     deliveredShipments: 0,
     pendingShipments: 0,
@@ -23,8 +24,37 @@ const AdminShipments = () => {
 
   const fetchShipments = async () => {
     try {
+      setLoading(true)
+
       const res = await api.get('/shipments')
-      setShipments(res.data)
+      const data = res.data
+
+      setShipments(data)
+
+      setStats({
+        totalShipments: data.length,
+        deliveredShipments: data.filter(
+          (item) => item.status === 'Delivered'
+        ).length,
+        pendingShipments: data.filter(
+          (item) => item.status !== 'Delivered'
+        ).length,
+        totalRevenue: data.reduce(
+          (total, item) => total + (item.amount || 0),
+          0
+        ),
+      })
+    } catch (err) {
+      console.log(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateStatus = async (id, status) => {
+    try {
+      await api.put(`/shipments/${id}`, { status })
+      fetchShipments()
     } catch (err) {
       console.log(err)
     }
@@ -35,93 +65,139 @@ const AdminShipments = () => {
   }, [])
 
   return (
-   <MainLayout>
-      <div className="p-6 space-y-8 bg-gray-50 min-h-screen">
-
+    <MainLayout>
+      <div className='p-6 space-y-8 min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white'>
+        
         {/* HEADER */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-green-600 to-emerald-500 text-white p-8 rounded-3xl shadow-lg"
+          className='bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl'
         >
-          <h1 className="text-3xl md:text-4xl font-bold">
-            👨‍🌾 Admin Dashboard
+          <h1 className='text-4xl font-black'>
+            Shipment Management
           </h1>
-          <p className="mt-2 text-green-100">
-            Track your crops, shipments and earnings in real time
+
+          <p className='mt-2 text-slate-400'>
+            Manage crop logistics and update delivery status in real-time
           </p>
         </motion.div>
 
         {/* STATS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-          {/* <StatsCard
-            title="My Shipments"
-            value={stats.totalShipments}
-            icon={<Truck className="text-green-600" />}
-          /> */}
-
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
           <StatsCard
-            title="Delivered"
+            title='Delivered'
             value={stats.deliveredShipments}
-            icon={<CheckCircle className="text-green-600" />}
+            icon={<CheckCircle className='text-green-400' />}
           />
 
           <StatsCard
-            title="Pending"
+            title='Pending'
             value={stats.pendingShipments}
-            icon={<Clock3 className="text-yellow-500" />}
+            icon={<Clock3 className='text-yellow-400' />}
           />
 
           <StatsCard
-            title="Earnings"
+            title='Revenue'
             value={`₹${stats.totalRevenue}`}
-            icon={<BadgeIndianRupee className="text-purple-600" />}
+            icon={<BadgeIndianRupee className='text-indigo-400' />}
           />
         </div>
 
-        {/* CHART SECTION */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* SHIPMENTS */}
+        <div className='bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-6'>
+          
+          <h2 className='text-2xl font-bold mb-6'>
+            All Shipments
+          </h2>
 
-          <div className="lg:col-span-2 bg-white p-6 rounded-3xl shadow-md">
-            {/* <YieldChart /> */}
-          </div>
-
-          {/* INSIGHTS */}
-          <div className="bg-white p-6 rounded-3xl shadow-md space-y-6">
-
-            <h2 className="text-xl font-bold text-gray-800">
-              📊 Insights
-            </h2>
-
-            <div className="p-4 bg-green-50 rounded-2xl">
-              <p className="text-gray-500 text-sm">Total Shipments</p>
-              <p className="text-2xl font-bold text-green-700">
-                {stats.totalShipments}
-              </p>
+          {loading ? (
+            <div className='text-center text-slate-400 py-10'>
+              Loading shipments...
             </div>
-
-            <div className="p-4 bg-blue-50 rounded-2xl">
-              <p className="text-gray-500 text-sm">Delivered</p>
-              <p className="text-2xl font-bold text-blue-700">
-                {stats.deliveredShipments}
-              </p>
+          ) : shipments.length === 0 ? (
+            <div className='text-center text-slate-400 py-10'>
+              No shipments found
             </div>
+          ) : (
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              {shipments.map((shipment) => (
+                <div
+                  key={shipment._id}
+                  className='bg-slate-900/40 border border-white/10 rounded-3xl p-6 hover:scale-[1.01] transition'
+                >
+                  {/* TOP */}
+                  <div className='flex justify-between items-start'>
+                    <div>
+                      <div className='flex items-center gap-3 mb-4'>
+                        <Truck className='text-indigo-400' />
 
-            <div className="p-4 bg-yellow-50 rounded-2xl">
-              <p className="text-gray-500 text-sm">Pending</p>
-              <p className="text-2xl font-bold text-yellow-600">
-                {stats.pendingShipments}
-              </p>
+                        <h3 className='text-2xl font-bold'>
+                          {shipment.crop}
+                        </h3>
+                      </div>
+
+                      <p className='text-slate-300'>
+                        <span className='text-slate-400'>
+                          Farmer:
+                        </span>{' '}
+                        {shipment.farmerName}
+                      </p>
+
+                      <p className='text-slate-300'>
+                        <span className='text-slate-400'>
+                          Destination:
+                        </span>{' '}
+                        {shipment.destination}
+                      </p>
+
+                      <p className='text-slate-300'>
+                        <span className='text-slate-400'>
+                          Quantity:
+                        </span>{' '}
+                        {shipment.quantity} KG
+                      </p>
+                    </div>
+
+                    {/* STATUS BADGE */}
+                    <span
+                      className={`px-4 py-2 rounded-full text-white text-sm font-semibold ${
+                        shipment.status === 'Delivered'
+                          ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                          : shipment.status === 'In Transit'
+                          ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                          : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                      }`}
+                    >
+                      {shipment.status}
+                    </span>
+                  </div>
+
+                  {/* UPDATE STATUS */}
+                  <div className='mt-6'>
+                    <select
+                      value={shipment.status}
+                      onChange={(e) =>
+                        updateStatus(
+                          shipment._id,
+                          e.target.value
+                        )
+                      }
+                      className='w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-white outline-none'
+                    >
+                      <option value='Pending'>Pending</option>
+                      <option value='In Transit'>In Transit</option>
+                      <option value='Delivered'>Delivered</option>
+                    </select>
+                  </div>
+                </div>
+              ))}
             </div>
-
-          </div>
-
+          )}
         </div>
-
       </div>
     </MainLayout>
   )
 }
 
-export default AdminShipments   // ✅ THIS IS REQUIRED
+export default AdminShipments

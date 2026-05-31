@@ -11,6 +11,7 @@ import Analytics from "./pages/Analytics";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminFarmers from "./pages/AdminFarmers";
 import AdminShipments from "./pages/AdminShipments";
+import AdminAnalytics from "./pages/AdminAnalytics"; // ✅ ADD THIS
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -18,6 +19,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+
         {/* ================= PUBLIC ================= */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -59,7 +61,7 @@ function App() {
           }
         />
 
-        {/* ================= ADMIN ROUTES (NESTED) ================= */}
+        {/* ================= ADMIN ROUTES ================= */}
         <Route
           path="/admin"
           element={
@@ -87,14 +89,16 @@ function App() {
           }
         />
 
-        {/* <Route
-          path='/admin/analytics'
+        {/* ✅ ADMIN ANALYTICS (FIXED) */}
+        <Route
+          path="/admin/analytics"
           element={
             <ProtectedRoute role="admin">
               <AdminAnalytics />
             </ProtectedRoute>
           }
-        /> */}
+        />
+
       </Routes>
     </BrowserRouter>
   );

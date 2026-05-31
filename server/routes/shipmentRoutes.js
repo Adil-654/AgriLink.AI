@@ -1,18 +1,30 @@
 const express = require('express')
 const Shipment = require('../models/Shipment')
 const User = require('../models/User')
+const authMiddleware = require('../middleware/authMiddleware')
 const router = express.Router()
 
 // ==========================================
 // CREATE SHIPMENT
 // ==========================================
+const getCropPrice = require('../services/marketPriceService')
+
 router.post('/create', async (req, res) => {
   try {
-    const shipment = await Shipment.create(req.body)
+    const pricePerKg = await getCropPrice(req.body.crop)
+
+    const revenue =
+      Number(req.body.quantity) * pricePerKg
+
+    const shipment = await Shipment.create({
+      ...req.body,
+      status: 'Pending',
+      pricePerKg,
+      revenue,
+    })
 
     res.status(201).json({
       success: true,
-      message: 'Shipment created successfully',
       shipment,
     })
   } catch (err) {
@@ -182,6 +194,20 @@ router.get('/analytics/stats', async (req, res) => {
     res.status(500).json({
       success: false,
       error: err.message,
+    })
+  }
+})
+
+router.get('/my/:name', async (req, res) => {
+  try {
+    const shipments = await Shipment.find({
+      farmerName: req.params.name
+    }).sort({ createdAt: -1 })
+
+    res.json(shipments)
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
     })
   }
 })
