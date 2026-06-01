@@ -4,6 +4,7 @@ const authRoutes = require("./routes/authRoutes");
 const shipmentRoutes = require("./routes/shipmentRoutes");
 const cropRoutes = require("./routes/cropRoutes");
 const adminRoutes = require('./routes/adminRoutes')
+const marketRoutes = require('./routes/marketRoutes')
 
 const app = express();
 app.use(cors());
@@ -14,6 +15,7 @@ app.use("/api/crop", cropRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/shipments", shipmentRoutes);
+app.use('/api/market', marketRoutes)
 
 app.get("/", (req, res) => {
   res.json({ message: "AgriLink AI API Running" });

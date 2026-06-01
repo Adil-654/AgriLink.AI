@@ -1,31 +1,26 @@
+import ShipmentBarChart from '../components/ShipmentBarChart'
+
 import { useEffect, useState } from 'react'
 import MainLayout from '../layouts/MainLayout'
 import api from '../services/api'
 import { motion } from 'framer-motion'
 
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
+  Tooltip,
+  ResponsiveContainer,
 } from 'recharts'
 
-import {
-  Truck,
-  BadgeIndianRupee,
-  CheckCircle,
-  Clock3,
-} from 'lucide-react'
-
-const COLORS = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444']
+const COLORS = [
+  '#6366f1',
+  '#22c55e',
+  '#f59e0b',
+  '#ef4444',
+]
 
 const AdminAnalytics = () => {
-  const [shipments, setShipments] = useState([])
   const [loading, setLoading] = useState(true)
 
   const [stats, setStats] = useState({
@@ -45,9 +40,7 @@ const AdminAnalytics = () => {
       const res = await api.get('/shipments')
       const data = res.data
 
-      setShipments(data)
-
-      // BASIC STATS
+      // Stats
       const delivered = data.filter(
         (s) => s.status === 'Delivered'
       ).length
@@ -57,7 +50,7 @@ const AdminAnalytics = () => {
       ).length
 
       const revenue = data.reduce(
-        (sum, s) => sum + (s.amount || 0),
+        (sum, s) => sum + (s.revenue || 0),
         0
       )
 
@@ -68,20 +61,30 @@ const AdminAnalytics = () => {
         revenue,
       })
 
-      // STATUS PIE DATA
+      // Pie Chart Data
       setStatusData([
-        { name: 'Delivered', value: delivered },
-        { name: 'Pending', value: pending },
+        {
+          name: 'Delivered',
+          value: delivered,
+        },
+        {
+          name: 'Pending',
+          value: pending,
+        },
       ])
 
-      // MONTHLY GROUPING
+      // Monthly Shipments Data
       const months = {}
 
       data.forEach((item) => {
         const date = new Date(item.createdAt)
-        const month = date.toLocaleString('default', {
-          month: 'short',
-        })
+
+        const month = date.toLocaleString(
+          'default',
+          {
+            month: 'short',
+          }
+        )
 
         if (!months[month]) {
           months[month] = 0
@@ -90,9 +93,11 @@ const AdminAnalytics = () => {
         months[month] += 1
       })
 
-      const formatted = Object.keys(months).map((m) => ({
-        month: m,
-        shipments: months[m],
+      const formatted = Object.keys(
+        months
+      ).map((month) => ({
+        month,
+        shipments: months[month],
       }))
 
       setMonthlyData(formatted)
@@ -107,14 +112,30 @@ const AdminAnalytics = () => {
     fetchAnalytics()
   }, [])
 
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className='p-10 text-center'>
+          Loading Analytics...
+        </div>
+      </MainLayout>
+    )
+  }
+
   return (
     <MainLayout>
       <div className='p-6 space-y-8 min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white'>
-
+        
         {/* HEADER */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{
+            opacity: 0,
+            y: -20,
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
           className='bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl'
         >
           <h1 className='text-4xl font-black'>
@@ -122,36 +143,50 @@ const AdminAnalytics = () => {
           </h1>
 
           <p className='text-slate-400 mt-2'>
-            Real-time insights of shipments, revenue & performance
+            Real-time insights of
+            shipments, revenue &
+            performance
           </p>
         </motion.div>
 
         {/* STATS */}
-        <div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
-
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
+          
           <div className='bg-white/5 border border-white/10 rounded-3xl p-6'>
-            <p className='text-slate-400'>Total</p>
+            <p className='text-slate-400'>
+              Total Shipments
+            </p>
+
             <h2 className='text-4xl font-black text-indigo-400'>
               {stats.total}
             </h2>
           </div>
 
           <div className='bg-white/5 border border-white/10 rounded-3xl p-6'>
-            <p className='text-slate-400'>Delivered</p>
+            <p className='text-slate-400'>
+              Delivered
+            </p>
+
             <h2 className='text-4xl font-black text-green-400'>
               {stats.delivered}
             </h2>
           </div>
 
           <div className='bg-white/5 border border-white/10 rounded-3xl p-6'>
-            <p className='text-slate-400'>Pending</p>
+            <p className='text-slate-400'>
+              Pending
+            </p>
+
             <h2 className='text-4xl font-black text-yellow-400'>
               {stats.pending}
             </h2>
           </div>
 
           <div className='bg-white/5 border border-white/10 rounded-3xl p-6'>
-            <p className='text-slate-400'>Revenue</p>
+            <p className='text-slate-400'>
+              Revenue
+            </p>
+
             <h2 className='text-4xl font-black text-purple-400'>
               ₹{stats.revenue}
             </h2>
@@ -167,18 +202,9 @@ const AdminAnalytics = () => {
               Monthly Shipments
             </h2>
 
-            <ResponsiveContainer width='100%' height={300}>
-              <BarChart data={monthlyData}>
-                <XAxis dataKey='month' stroke='#94a3b8' />
-                <YAxis stroke='#94a3b8' />
-                <Tooltip />
-                <Bar
-                  dataKey='shipments'
-                  fill='#6366f1'
-                  radius={[10, 10, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <ShipmentBarChart
+              data={monthlyData}
+            />
           </div>
 
           {/* PIE CHART */}
@@ -187,7 +213,10 @@ const AdminAnalytics = () => {
               Status Distribution
             </h2>
 
-            <ResponsiveContainer width='100%' height={300}>
+            <ResponsiveContainer
+              width='100%'
+              height={300}
+            >
               <PieChart>
                 <Pie
                   data={statusData}
@@ -197,12 +226,19 @@ const AdminAnalytics = () => {
                   outerRadius={100}
                   label
                 >
-                  {statusData.map((entry, index) => (
-                    <Cell
-                      key={index}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
+                  {statusData.map(
+                    (entry, index) => (
+                      <Cell
+                        key={index}
+                        fill={
+                          COLORS[
+                            index %
+                              COLORS.length
+                          ]
+                        }
+                      />
+                    )
+                  )}
                 </Pie>
 
                 <Tooltip />
@@ -210,6 +246,44 @@ const AdminAnalytics = () => {
             </ResponsiveContainer>
           </div>
         </div>
+
+        {/* SUMMARY TABLE */}
+        <div className='bg-white/5 border border-white/10 rounded-3xl p-6'>
+          <h2 className='text-xl font-bold mb-4'>
+            Analytics Summary
+          </h2>
+
+          <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+            <div className='bg-indigo-500/20 p-4 rounded-xl'>
+              <p>Total Shipments</p>
+              <h3 className='text-2xl font-bold'>
+                {stats.total}
+              </h3>
+            </div>
+
+            <div className='bg-green-500/20 p-4 rounded-xl'>
+              <p>Delivered</p>
+              <h3 className='text-2xl font-bold'>
+                {stats.delivered}
+              </h3>
+            </div>
+
+            <div className='bg-yellow-500/20 p-4 rounded-xl'>
+              <p>Pending</p>
+              <h3 className='text-2xl font-bold'>
+                {stats.pending}
+              </h3>
+            </div>
+
+            <div className='bg-purple-500/20 p-4 rounded-xl'>
+              <p>Revenue</p>
+              <h3 className='text-2xl font-bold'>
+                ₹{stats.revenue}
+              </h3>
+            </div>
+          </div>
+        </div>
+
       </div>
     </MainLayout>
   )

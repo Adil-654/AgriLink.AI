@@ -21,35 +21,43 @@ const AdminShipments = () => {
     pendingShipments: 0,
     totalRevenue: 0,
   })
+const fetchShipments = async () => {
+  try {
+    setLoading(true)
 
-  const fetchShipments = async () => {
-    try {
-      setLoading(true)
+    const res = await api.get('/shipments')
+    const data = res.data
 
-      const res = await api.get('/shipments')
-      const data = res.data
+    setShipments(data)
 
-      setShipments(data)
+    const deliveredShipments = data.filter(
+      (item) => item.status === 'Delivered'
+    )
 
-      setStats({
-        totalShipments: data.length,
-        deliveredShipments: data.filter(
-          (item) => item.status === 'Delivered'
-        ).length,
-        pendingShipments: data.filter(
-          (item) => item.status !== 'Delivered'
-        ).length,
-        totalRevenue: data.reduce(
-          (total, item) => total + (item.amount || 0),
-          0
-        ),
-      })
-    } catch (err) {
-      console.log(err)
-    } finally {
-      setLoading(false)
-    }
+    const pendingShipments = data.filter(
+      (item) => item.status !== 'Delivered'
+    )
+
+    const totalRevenue = deliveredShipments.reduce(
+      (total, item) =>
+        total + (item.revenue || 0),
+      0
+    )
+
+    setStats({
+      totalShipments: data.length,
+      deliveredShipments:
+        deliveredShipments.length,
+      pendingShipments:
+        pendingShipments.length,
+      totalRevenue,
+    })
+  } catch (err) {
+    console.log(err)
+  } finally {
+    setLoading(false)
   }
+}
 
   const updateStatus = async (id, status) => {
     try {
@@ -157,6 +165,18 @@ const AdminShipments = () => {
                         </span>{' '}
                         {shipment.quantity} KG
                       </p>
+
+
+                      <p className='text-slate-300'>
+  <span className='text-slate-400'>
+    Price/KG:
+  </span>{' '}
+  ₹{shipment.pricePerKg}
+</p>
+
+<p className='text-green-400 font-bold text-lg mt-2'>
+  Revenue: ₹{shipment.revenue}
+</p>
                     </div>
 
                     {/* STATUS BADGE */}

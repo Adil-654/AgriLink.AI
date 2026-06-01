@@ -51,14 +51,17 @@ const CreateShipmentForm = ({ fetchShipments }) => {
     setSuggestions([])
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+const handleSubmit = async (e) => {
+  e.preventDefault()
 
-    await api.post('/shipments/create', {
+  try {
+    const res = await api.post('/shipments/create', {
       ...form,
       farmerName: user?.name,
       userId: user?._id,
     })
+
+    console.log(res.data)
 
     fetchShipments()
 
@@ -69,7 +72,12 @@ const CreateShipmentForm = ({ fetchShipments }) => {
     })
 
     setSuggestions([])
+
+  } catch (err) {
+    console.log(err.response?.data)
+    alert(err.response?.data?.error || 'Failed to create shipment')
   }
+}
 
   return (
     <div className='bg-white rounded-3xl p-8 shadow-md mb-8'>

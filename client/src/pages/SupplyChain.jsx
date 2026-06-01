@@ -1,29 +1,27 @@
 import { useEffect, useState } from 'react'
-
 import MainLayout from '../layouts/MainLayout'
 import ShipmentCard from '../components/ShipmentCard'
 import CreateShipmentForm from '../components/CreateShipmentForm'
-
 import api from '../services/api'
 
 const SupplyChain = () => {
   const [shipments, setShipments] = useState([])
 
   const fetchShipments = async () => {
-  try {
-    const user = JSON.parse(
-      localStorage.getItem('user')
-    )
+    try {
+      const user = JSON.parse(
+        localStorage.getItem('user')
+      )
 
-    const response = await api.get(
-      `/shipments/my/${user.name}`
-    )
+      const response = await api.get(
+        `/shipments/my/${user.name}`
+      )
 
-    setShipments(response.data)
-  } catch (err) {
-    console.log(err)
+      setShipments(response.data)
+    } catch (err) {
+      console.log(err)
+    }
   }
-}
 
   useEffect(() => {
     fetchShipments()
@@ -31,12 +29,10 @@ const SupplyChain = () => {
 
   return (
     <MainLayout>
-      {/* CREATE SHIPMENT */}
       <CreateShipmentForm
         fetchShipments={fetchShipments}
       />
 
-      {/* HISTORY SECTION */}
       <div className='mb-6'>
         <h2 className='text-3xl font-bold text-green-700'>
           Shipment History

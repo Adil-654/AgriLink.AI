@@ -1,28 +1,20 @@
 // services/marketPriceService.js
 
-const axios = require('axios')
+const prices = {
+  Rice: 42,
+  Wheat: 25,
+  Millet: 34,
+  Cotton: 70,
+  Groundnut: 60,
+  Maize: 21,
+  Tea: 200,
+  Coffee: 280,
+  Watermelon: 12,
+  Sugarcane: 4,
+}
 
 const getCropPrice = async (crop) => {
-  try {
-    const response = await axios.get(
-      'ACTUAL_API_URL_HERE'
-    )
-
-    const data = response.data
-
-    const cropData = data.find(
-      (item) =>
-        item.commodity?.toLowerCase() ===
-        crop.toLowerCase()
-    )
-
-    if (!cropData) return 20
-
-    return Number(cropData.modal_price) / 100
-  } catch (err) {
-    console.log(err.message)
-    return 20
-  }
+  return prices[crop] || 20
 }
 
 module.exports = getCropPrice
