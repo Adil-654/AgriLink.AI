@@ -1,0 +1,17 @@
+{
+  "login": "लॉगिन",
+  "register": "पंजीकरण",
+  "dashboard": "डैशबोर्ड",
+  "cropPrediction": "फसल भविष्यवाणी",
+  "analytics": "विश्लेषण",
+  "supplyChain": "सप्लाई चेन",
+  "logout": "लॉगआउट",
+  "name": "नाम",
+  "email": "ईमेल पता",
+  "password": "पासवर्ड",
+  "createAccount": "खाता बनाएं",
+  "welcomeBack": "वापस स्वागत है",
+  "predictCrop": "फसल का अनुमान लगाएं",
+  "farmerDashboard": "किसान डैशबोर्ड",
+  "adminDashboard": "एडमिन डैशबोर्ड"
+}

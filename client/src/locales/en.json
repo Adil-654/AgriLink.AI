@@ -1,0 +1,17 @@
+{
+  "login": "Login",
+  "register": "Register",
+  "dashboard": "Dashboard",
+  "cropPrediction": "Crop Prediction",
+  "analytics": "Analytics",
+  "supplyChain": "Supply Chain",
+  "logout": "Logout",
+  "name": "Name",
+  "email": "Email Address",
+  "password": "Password",
+  "createAccount": "Create Account",
+  "welcomeBack": "Welcome back",
+  "predictCrop": "Predict Crop",
+  "farmerDashboard": "Farmer Dashboard",
+  "adminDashboard": "Admin Dashboard"
+}

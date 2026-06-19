@@ -1,182 +1,166 @@
-const express = require('express')
-const Shipment = require('../models/Shipment')
-const User = require('../models/User')
-const authMiddleware = require('../middleware/authMiddleware')
-const router = express.Router()
+const express = require("express");
+const Shipment = require("../models/Shipment");
+const User = require("../models/User");
+const authMiddleware = require("../middleware/authMiddleware");
+const router = express.Router();
 
 // ==========================================
 // CREATE SHIPMENT
 // ==========================================
-const getCropPrice = require('../services/marketPriceService')
+const getCropPrice = require("../services/marketPriceService");
 
-router.post('/create', async (req, res) => {
+router.post("/create", async (req, res) => {
   try {
-    const pricePerKg = await getCropPrice(req.body.crop)
+    const pricePerKg = await getCropPrice(req.body.crop);
 
-    const revenue =
-      Number(req.body.quantity) * pricePerKg
-
+    const revenue = Number(req.body.quantity) * pricePerKg;
     const shipment = await Shipment.create({
       ...req.body,
-      status: 'Pending',
+      createdBy: req.body.createdBy,
+      status: "Pending",
       pricePerKg,
       revenue,
-    })
+    });
 
     res.status(201).json({
       success: true,
       shipment,
-    })
+    });
   } catch (err) {
     res.status(500).json({
       success: false,
       error: err.message,
-    })
+    });
   }
-})
+});
 
 // ==========================================
 // GET ALL SHIPMENTS
 // ==========================================
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const shipments = await Shipment.find().sort({
       createdAt: -1,
-    })
+    });
 
-    res.status(200).json(shipments)
+    res.status(200).json(shipments);
   } catch (err) {
     res.status(500).json({
       success: false,
       error: err.message,
-    })
+    });
   }
-})
+});
 
 // ==========================================
 // GET SINGLE SHIPMENT
 // ==========================================
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    const shipment = await Shipment.findById(
-      req.params.id
-    )
+    const shipment = await Shipment.findById(req.params.id);
 
     if (!shipment) {
       return res.status(404).json({
         success: false,
-        message: 'Shipment not found',
-      })
+        message: "Shipment not found",
+      });
     }
 
-    res.status(200).json(shipment)
+    res.status(200).json(shipment);
   } catch (err) {
     res.status(500).json({
       success: false,
       error: err.message,
-    })
+    });
   }
-})
+});
 
 // ==========================================
 // UPDATE SHIPMENT STATUS
 // ==========================================
-router.put('/:id', async (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
-    const shipment = await Shipment.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-      }
-    )
+    const shipment = await Shipment.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
 
     if (!shipment) {
       return res.status(404).json({
         success: false,
-        message: 'Shipment not found',
-      })
+        message: "Shipment not found",
+      });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Shipment updated successfully',
+      message: "Shipment updated successfully",
       shipment,
-    })
+    });
   } catch (err) {
     res.status(500).json({
       success: false,
       error: err.message,
-    })
+    });
   }
-})
+});
 
 // ==========================================
 // DELETE SHIPMENT
 // ==========================================
-router.delete('/:id', async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
-    const shipment = await Shipment.findByIdAndDelete(
-      req.params.id
-    )
+    const shipment = await Shipment.findByIdAndDelete(req.params.id);
 
     if (!shipment) {
       return res.status(404).json({
         success: false,
-        message: 'Shipment not found',
-      })
+        message: "Shipment not found",
+      });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Shipment deleted successfully',
-    })
+      message: "Shipment deleted successfully",
+    });
   } catch (err) {
     res.status(500).json({
       success: false,
       error: err.message,
-    })
+    });
   }
-})
+});
 
 // ==========================================
 // SHIPMENT ANALYTICS
 // ==========================================
-router.get('/analytics/stats', async (req, res) => {
-
+router.get("/analytics/stats", async (req, res) => {
   try {
+    const totalShipments = await Shipment.countDocuments();
 
-    const totalShipments =
-      await Shipment.countDocuments()
+    const deliveredShipments = await Shipment.countDocuments({
+      status: "Delivered",
+    });
 
-    const deliveredShipments =
-      await Shipment.countDocuments({
-        status: 'Delivered',
-      })
+    const pendingShipments = await Shipment.countDocuments({
+      status: "Pending",
+    });
 
-    const pendingShipments =
-      await Shipment.countDocuments({
-        status: 'Pending',
-      })
-
-    const inTransitShipments =
-      await Shipment.countDocuments({
-        status: 'In Transit',
-      })
+    const inTransitShipments = await Shipment.countDocuments({
+      status: "In Transit",
+    });
 
     // Count users with farmer role
-    const totalFarmers =
-      await User.countDocuments({
-        role: 'farmer',
-      })
+    const totalFarmers = await User.countDocuments({
+      role: "farmer",
+    });
 
-    const shipments = await Shipment.find()
+    const shipments = await Shipment.find();
 
-    let totalRevenue = 0
+    let totalRevenue = 0;
 
     shipments.forEach((shipment) => {
-      totalRevenue += shipment.quantity * 20
-    })
+      totalRevenue += shipment.quantity * 20;
+    });
 
     res.status(200).json({
       totalShipments,
@@ -185,30 +169,63 @@ router.get('/analytics/stats', async (req, res) => {
       inTransitShipments,
       totalFarmers,
       totalRevenue,
-    })
-
+    });
   } catch (err) {
-
-    console.log(err)
+    console.log(err);
 
     res.status(500).json({
       success: false,
       error: err.message,
-    })
+    });
   }
-})
+});
 
-router.get('/my/:name', async (req, res) => {
+router.get("/my/:name", async (req, res) => {
   try {
     const shipments = await Shipment.find({
-      farmerName: req.params.name
-    }).sort({ createdAt: -1 })
+      farmerName: req.params.name,
+    }).sort({ createdAt: -1 });
 
-    res.json(shipments)
+    res.json(shipments);
   } catch (err) {
     res.status(500).json({
-      message: err.message
-    })
+      message: err.message,
+    });
   }
-})
-module.exports = router
+});
+router.get("/my-stats/:id", async (req, res) => {
+  try {
+    const shipments = await Shipment.find({
+      createdBy: req.params.id,
+    });
+
+    const totalShipments = shipments.length;
+
+    const deliveredShipments = shipments.filter(
+      (shipment) => shipment.status === "Delivered",
+    ).length;
+
+    const pendingShipments = shipments.filter(
+      (shipment) => shipment.status === "Pending",
+    ).length;
+
+    const totalRevenue = shipments
+      .filter((shipment) => shipment.status === "Delivered")
+      .reduce((total, shipment) => total + Number(shipment.revenue || 0), 0);
+
+    res.status(200).json({
+      totalShipments,
+      deliveredShipments,
+      pendingShipments,
+      totalRevenue,
+    });
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+});
+module.exports = router;
