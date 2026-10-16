@@ -1,9 +1,8 @@
-const express = require("express");
-const router = express.Router();
 
-const {
-  predictCrop,
-} = require("../controller/cropController");
+const express = require("express");
+const predictCrop = require("../controller/cropController");
+
+const router = express.Router();
 
 router.post("/predict", predictCrop);
 

@@ -1,26 +1,21 @@
+
 const axios = require("axios");
 
 const predictCrop = async (req, res) => {
-
   try {
-
     const response = await axios.post(
-     "http://127.0.0.1:8000/predict",
+      "http://127.0.0.1:8000/predict",
       req.body
     );
 
-    res.status(200).json(response.data);
+    return res.json(response.data);
+  } catch (err) {
+    console.error("ERROR:", err.message);
 
-  } catch (error) {
-
-    console.log(error);
-
-    res.status(500).json({
-      message: "Prediction Failed"
+    return res.status(500).json({
+      message: "Flask service not reachable",
     });
   }
 };
 
-module.exports = {
-  predictCrop,
-};
+module.exports = predictCrop;

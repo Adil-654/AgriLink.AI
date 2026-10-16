@@ -6,9 +6,14 @@ import {
   Users,
   Package,
   ChevronLeft,
+<<<<<<< HEAD
   CloudSun,
   ShieldCheck,
 } from "lucide-react";
+=======
+  TrendingUp,
+} from 'lucide-react'
+>>>>>>> 695f543 (gsap)
 
 import { NavLink } from "react-router-dom";
 
@@ -39,11 +44,19 @@ const Sidebar = ({ toggleSidebar }) => {
       path: "/analytics",
     },
     {
+<<<<<<< HEAD
       name: "Weather",
       icon: <CloudSun size={20} />,
       path: "/weather",
     },
   ];
+=======
+      name: 'Market Analysis',
+      icon: <TrendingUp size={20} />,
+      path: '/market-analysis',
+    },
+  ]
+>>>>>>> 695f543 (gsap)
 
   const adminMenu = [
     {

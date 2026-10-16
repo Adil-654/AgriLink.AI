@@ -1,6 +1,8 @@
 const express = require('express')
 
 const router = express.Router()
+const cropMarketAnalysis=require('../controller/marketController.js')
+
 
 router.get('/prices', (req, res) => {
   const prices = [
@@ -49,4 +51,7 @@ router.get('/prices', (req, res) => {
   res.json(prices)
 })
 
+
+
+// 🌾 Market Analysis Route
 module.exports = router

@@ -16,7 +16,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminFarmers from "./pages/AdminFarmers";
 import AdminShipments from "./pages/AdminShipments";
 import AdminAnalytics from "./pages/AdminAnalytics"; // ✅ ADD THIS
-
+import CropMarketAnalysis from "./pages/CropMarketAnalysis"
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -62,6 +62,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+<<<<<<< HEAD
+=======
+<Route
+  path="/market-analysis"
+  element={
+    <ProtectedRoute role="farmer">
+      <CropMarketAnalysis />
+    </ProtectedRoute>
+  }
+/>
+>>>>>>> 695f543 (gsap)
         <Route
           path="/prediction"
           element={
