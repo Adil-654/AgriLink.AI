@@ -6,14 +6,10 @@ import {
   Users,
   Package,
   ChevronLeft,
-<<<<<<< HEAD
   CloudSun,
   ShieldCheck,
-} from "lucide-react";
-=======
   TrendingUp,
-} from 'lucide-react'
->>>>>>> 695f543 (gsap)
+} from "lucide-react";
 
 import { NavLink } from "react-router-dom";
 
@@ -44,19 +40,16 @@ const Sidebar = ({ toggleSidebar }) => {
       path: "/analytics",
     },
     {
-<<<<<<< HEAD
       name: "Weather",
       icon: <CloudSun size={20} />,
       path: "/weather",
     },
-  ];
-=======
-      name: 'Market Analysis',
+    {
+      name: "Market Analysis",
       icon: <TrendingUp size={20} />,
-      path: '/market-analysis',
+      path: "/market-analysis",
     },
-  ]
->>>>>>> 695f543 (gsap)
+  ];
 
   const adminMenu = [
     {
@@ -97,7 +90,6 @@ const Sidebar = ({ toggleSidebar }) => {
       }`}
     >
       {/* Header */}
-
       <div className="flex items-center justify-between mb-12">
         <div>
           <h1 className="text-3xl font-bold tracking-wide">
@@ -128,11 +120,10 @@ const Sidebar = ({ toggleSidebar }) => {
       </div>
 
       {/* Menu */}
-
       <div className="space-y-3">
-        {menu.map((item, index) => (
+        {menu.map((item) => (
           <NavLink
-            key={index}
+            key={item.path}
             to={item.path}
             className={({ isActive }) =>
               `flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 ${
@@ -153,10 +144,11 @@ const Sidebar = ({ toggleSidebar }) => {
       </div>
 
       {/* Footer */}
-
       <div
         className={`absolute bottom-6 left-6 right-6 rounded-2xl p-4 text-center ${
-          isAdmin ? "bg-indigo-900/40 border border-indigo-700" : "bg-green-800"
+          isAdmin
+            ? "bg-indigo-900/40 border border-indigo-700"
+            : "bg-green-800"
         }`}
       >
         <p

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
@@ -9,7 +10,6 @@ const Login = () => {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
-
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
@@ -28,67 +28,59 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setError("");
     setLoading(true);
 
     try {
       const response = await api.post("/auth/login", form);
 
-      if (response.data.user.role !== "farmer") {
-        toast.error("❌ Only Farmer accounts can login here");
-        setLoading(false);
-        return;
-      }
-
       const token = response.data.token;
       const user = response.data.user;
 
-      if (user.role !== "farmer") {
-        toast.error("❌ Only Farmer accounts can login here");
-        setLoading(false);
+      if (user?.role !== "farmer") {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Only Farmer accounts can login here.",
+          background: "#0f172a",
+          color: "#ffffff",
+        });
         return;
       }
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      Swal.fire({
+      await Swal.fire({
         icon: "success",
         title: "Login Successful",
         text: "Welcome to AgriLink AI 🌱",
-        timer: 1500,
+        timer: 1200,
         showConfirmButton: false,
         background: "#0f172a",
         color: "#ffffff",
       });
 
-      setLoading(false);
-
-      if (user.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
-      }
+      navigate("/dashboard");
     } catch (err) {
+      setError(
+        err?.response?.data?.message || "Invalid email or password"
+      );
+    } finally {
       setLoading(false);
-
-      setError(err?.response?.data?.message || "Invalid email or password");
-
-      setTimeout(() => setError(""), 3000);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#050816] overflow-hidden flex items-center justify-center relative px-6">
+    <div className="h-screen w-full bg-[#050816] overflow-hidden flex items-center justify-center relative p-3 sm:p-4">
       {/* Error Popup */}
-
       <AnimatePresence>
         {error && (
           <motion.div
             initial={{ x: 100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 100, opacity: 0 }}
-            className="fixed top-6 right-6 bg-red-500 text-white px-6 py-4 rounded-2xl shadow-2xl z-50"
+            className="fixed top-4 right-4 bg-red-500 text-white px-5 py-3 rounded-xl shadow-2xl z-50 text-sm"
           >
             ❌ {error}
           </motion.div>
@@ -96,77 +88,37 @@ const Login = () => {
       </AnimatePresence>
 
       {/* Background Glow */}
-
       <motion.div
         animate={{
           scale: [1, 1.2, 1],
           rotate: [0, 180, 360],
         }}
-        transition={{
-          repeat: Infinity,
-          duration: 20,
-        }}
-        className="absolute w-[700px] h-[700px] bg-green-500/20 rounded-full blur-3xl"
+        transition={{ repeat: Infinity, duration: 20 }}
+        className="absolute w-[500px] h-[500px] bg-green-500/20 rounded-full blur-3xl pointer-events-none"
       />
 
       <motion.div
-        animate={{
-          y: [0, -40, 0],
-        }}
-        transition={{
-          repeat: Infinity,
-          duration: 6,
-        }}
-        className="absolute top-10 left-10 w-96 h-96 bg-green-500/20 rounded-full blur-3xl"
+        animate={{ y: [0, -25, 0] }}
+        transition={{ repeat: Infinity, duration: 6 }}
+        className="absolute top-5 left-5 w-64 h-64 bg-green-500/20 rounded-full blur-3xl pointer-events-none"
       />
 
       <motion.div
-        animate={{
-          y: [0, 40, 0],
-        }}
-        transition={{
-          repeat: Infinity,
-          duration: 7,
-        }}
-        className="absolute bottom-10 right-10 w-96 h-96 bg-emerald-400/20 rounded-full blur-3xl"
-      />
-
-      <motion.div
-        animate={{
-          x: [0, 20, 0],
-          y: [0, -20, 0],
-        }}
-        transition={{
-          repeat: Infinity,
-          duration: 8,
-        }}
-        className="absolute bottom-20 left-20 w-80 h-80 bg-green-400/10 rounded-full blur-3xl"
+        animate={{ y: [0, 25, 0] }}
+        transition={{ repeat: Infinity, duration: 7 }}
+        className="absolute bottom-5 right-5 w-64 h-64 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none"
       />
 
       {/* Main Card */}
-
       <motion.div
-        initial={{
-          opacity: 0,
-          scale: 0.9,
-        }}
-        animate={{
-          opacity: 1,
-          scale: 1,
-        }}
-        whileHover={{
-          scale: 1.01,
-        }}
-        transition={{
-          duration: 0.7,
-        }}
-        className="relative z-10 w-full max-w-7xl grid lg:grid-cols-2 bg-white/10 backdrop-blur-3xl border border-white/10 rounded-[40px] overflow-hidden shadow-[0_0_70px_rgba(34,197,94,0.15)]"
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6 }}
+        className="relative z-10 w-full max-w-6xl h-full max-h-full grid grid-cols-1 lg:grid-cols-2 bg-white/10 backdrop-blur-3xl border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(34,197,94,0.15)]"
       >
-        {/* ================= LEFT SIDE ================= */}
-
-        <div className="hidden lg:flex relative flex-col justify-between p-12 bg-gradient-to-br from-green-950/40 via-black to-green-900/30 overflow-hidden">
+        {/* LEFT SIDE */}
+        <div className="hidden lg:flex relative flex-col justify-between p-6 xl:p-8 bg-gradient-to-br from-green-950/40 via-black to-green-900/30 overflow-hidden min-h-0">
           {/* Floating Shapes */}
-
           <motion.div
             animate={{ rotate: 360 }}
             transition={{
@@ -174,7 +126,7 @@ const Login = () => {
               duration: 20,
               ease: "linear",
             }}
-            className="absolute top-8 left-8 w-36 h-36 border border-green-400/20 rounded-full"
+            className="absolute top-5 left-5 w-28 h-28 border border-green-400/20 rounded-full pointer-events-none"
           />
 
           <motion.div
@@ -184,31 +136,29 @@ const Login = () => {
               duration: 25,
               ease: "linear",
             }}
-            className="absolute bottom-10 right-10 w-44 h-44 border border-green-300/10 rounded-3xl"
+            className="absolute bottom-5 right-5 w-32 h-32 border border-green-300/10 rounded-3xl pointer-events-none"
           />
 
           {/* Logo & Heading */}
-
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-500/30 px-4 py-2 rounded-full text-green-300 text-xs font-semibold mb-6">
+            <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-500/30 px-3 py-2 rounded-full text-green-300 text-xs font-semibold">
               🚀 Smart Agriculture Platform
             </div>
 
-            <h1 className="text-6xl font-black leading-tight bg-gradient-to-r from-green-300 via-green-400 to-emerald-500 bg-clip-text text-transparent">
+            <h1 className="text-5xl xl:text-6xl font-black leading-tight bg-gradient-to-r from-green-300 via-green-400 to-emerald-500 bg-clip-text text-transparent mt-4">
               AgriLink
               <br />
               AI
             </h1>
 
-            <p className="mt-6 text-gray-300 text-sm leading-8 max-w-md">
+            <p className="mt-3 text-gray-300 text-sm leading-6 max-w-md">
               AI-powered agriculture ecosystem integrating crop intelligence,
               smart logistics, predictive analytics and digital farmer
               management.
             </p>
 
             {/* Feature Chips */}
-
-            <div className="flex flex-wrap gap-3 mt-8">
+            <div className="flex flex-wrap gap-2 mt-4">
               <div className="px-3 py-2 rounded-full bg-green-500/20 border border-green-500/30 text-green-300 text-xs">
                 🤖 AI Prediction
               </div>
@@ -227,96 +177,92 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Floating Image */}
-
+          {/* Agriculture Image */}
           <motion.img
             animate={{
-              y: [0, -12, 0],
-              scale: [1, 1.02, 1],
+              y: [0, -8, 0],
+              scale: [1, 1.01, 1],
             }}
-            transition={{
-              repeat: Infinity,
-              duration: 5,
-            }}
+            transition={{ repeat: Infinity, duration: 5 }}
             src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1200&auto=format&fit=crop"
             alt="Agriculture"
-            className="relative z-10 w-full h-[320px] object-cover rounded-[30px] mt-10 shadow-[0_25px_60px_rgba(34,197,94,0.35)]"
+            className="relative z-10 w-full h-[clamp(120px,22vh,220px)] object-cover rounded-2xl my-4 shadow-[0_20px_40px_rgba(34,197,94,0.25)]"
           />
 
           {/* Statistics */}
-
-          <div className="grid grid-cols-3 gap-4 mt-8 relative z-10">
+          <div className="grid grid-cols-3 gap-3 relative z-10">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-green-400">500+</h2>
-
+              <h2 className="text-xl font-bold text-green-400">500+</h2>
               <p className="text-xs text-gray-400">Farmers</p>
             </div>
 
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-green-400">98%</h2>
-
+              <h2 className="text-xl font-bold text-green-400">98%</h2>
               <p className="text-xs text-gray-400">AI Accuracy</p>
             </div>
 
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-green-400">24/7</h2>
-
+              <h2 className="text-xl font-bold text-green-400">24/7</h2>
               <p className="text-xs text-gray-400">Support</p>
             </div>
           </div>
         </div>
 
-        {/* ================= RIGHT SIDE LOGIN ================= */}
-
-        <div className="flex items-center justify-center p-8 md:p-14">
+        {/* RIGHT SIDE LOGIN */}
+        <div className="flex items-center justify-center p-4 sm:p-6 lg:p-8 min-h-0 overflow-hidden">
           <form onSubmit={handleSubmit} className="w-full max-w-sm">
+            {/* Mobile Branding */}
+            <div className="lg:hidden mb-5 text-center">
+              <h1 className="text-3xl font-black bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                AgriLink AI
+              </h1>
+              <p className="text-gray-400 text-xs mt-1">
+                🌱 Smart Agriculture Platform
+              </p>
+            </div>
+
             <motion.h1
-              initial={{
-                opacity: 0,
-                y: -20,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{
-                duration: 0.7,
-              }}
-              className="text-5xl font-black bg-gradient-to-r from-green-400 via-green-500 to-emerald-400 bg-clip-text text-transparent"
+              initial={{ opacity: 0, y: -15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-4xl xl:text-5xl font-black bg-gradient-to-r from-green-400 via-green-500 to-emerald-400 bg-clip-text text-transparent"
             >
-              Login
+              Farmer Login
             </motion.h1>
 
-            <p className="text-gray-400 mt-2 mb-8">
+            <p className="text-gray-400 mt-2 mb-5 text-sm">
               Access your AgriLink AI dashboard
             </p>
 
-            <div className="space-y-5">
+            <div className="space-y-4">
               <motion.input
-                whileFocus={{
-                  scale: 1.02,
-                }}
+                whileFocus={{ scale: 1.01 }}
                 type="email"
                 name="email"
+                value={form.email}
                 placeholder="Email Address"
+                autoComplete="email"
+                required
                 onChange={handleChange}
-                className="w-full bg-white/10 border border-white/10 text-white placeholder-gray-400 p-4 rounded-2xl outline-none focus:ring-4 focus:ring-green-500/30 focus:border-green-500 transition-all duration-300"
+                className="w-full bg-white/10 border border-white/10 text-white placeholder-gray-400 p-3.5 rounded-xl outline-none focus:ring-4 focus:ring-green-500/30 focus:border-green-500 transition-all"
               />
 
               <div className="relative">
                 <motion.input
-                  whileFocus={{
-                    scale: 1.02,
-                  }}
+                  whileFocus={{ scale: 1.01 }}
                   type={showPassword ? "text" : "password"}
                   name="password"
+                  value={form.password}
                   placeholder="Password"
+                  autoComplete="current-password"
+                  required
                   onChange={handleChange}
-                  className="w-full bg-white/10 border border-white/10 text-white placeholder-gray-400 p-4 pr-12 rounded-2xl outline-none focus:ring-4 focus:ring-green-500/30 focus:border-green-500 transition-all duration-300"
+                  className="w-full bg-white/10 border border-white/10 text-white placeholder-gray-400 p-3.5 pr-12 rounded-xl outline-none focus:ring-4 focus:ring-green-500/30 focus:border-green-500 transition-all"
                 />
 
                 <button
                   type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-green-400 transition-all"
                 >
@@ -328,45 +274,33 @@ const Login = () => {
             <motion.button
               type="submit"
               disabled={loading}
-              whileHover={!loading ? { scale: 1.03 } : {}}
-              whileTap={!loading ? { scale: 0.95 } : {}}
-              className="w-full mt-8 bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-[0_0_35px_rgba(34,197,94,0.45)] transition-all duration-300 text-black font-bold py-4 rounded-2xl"
+              whileHover={!loading ? { scale: 1.02 } : {}}
+              whileTap={!loading ? { scale: 0.98 } : {}}
+              className="w-full mt-5 bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-[0_0_30px_rgba(34,197,94,0.4)] transition-all text-black font-bold py-3.5 rounded-xl disabled:opacity-60"
             >
               {loading ? "Signing In..." : "🚀 Login"}
             </motion.button>
 
-            <div className="flex items-center my-6">
-              <div className="flex-1 h-px bg-white/10"></div>
-
+            <div className="flex items-center my-4">
+              <div className="flex-1 h-px bg-white/10" />
               <span className="px-3 text-xs text-gray-400">OR</span>
-
-              <div className="flex-1 h-px bg-white/10"></div>
+              <div className="flex-1 h-px bg-white/10" />
             </div>
 
-            <Link to="/register">
-              <motion.button
-                type="button"
-                whileHover={{
-                  scale: 1.02,
-                }}
-                whileTap={{
-                  scale: 0.97,
-                }}
-                className="w-full bg-white/5 border border-green-500/30 hover:bg-green-500/10 hover:border-green-500 transition-all duration-300 text-white py-4 rounded-2xl"
+            <Link to="/register" className="block">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full text-center bg-white/5 border border-green-500/30 hover:bg-green-500/10 hover:border-green-500 transition-all text-white py-3.5 rounded-xl"
               >
                 Create Account
-              </motion.button>
+              </motion.div>
             </Link>
 
             <motion.p
-              animate={{
-                opacity: [0.4, 1, 0.4],
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 3,
-              }}
-              className="text-center text-xs text-gray-500 mt-8"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ repeat: Infinity, duration: 3 }}
+              className="text-center text-xs text-gray-500 mt-5"
             >
               🌱 Building the Future of Smart Agriculture with AI
             </motion.p>

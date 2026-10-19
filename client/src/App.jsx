@@ -15,37 +15,22 @@ import LoginSelection from "./pages/LoginSelection";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminFarmers from "./pages/AdminFarmers";
 import AdminShipments from "./pages/AdminShipments";
-import AdminAnalytics from "./pages/AdminAnalytics"; // ✅ ADD THIS
-import CropMarketAnalysis from "./pages/CropMarketAnalysis"
+import AdminAnalytics from "./pages/AdminAnalytics";
+import CropMarketAnalysis from "./pages/CropMarketAnalysis";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        import Weather from "./pages/Weather";
-        <Route
-          path="/weather"
-          element={
-            <ProtectedRoute>
-              <Weather />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/create-admin"
-          element={
-            <ProtectedRoute role="admin">
-              <CreateAdmin />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/admin-login" element={<AdminLogin />} />
-        {/* ================= PUBLIC ================= */}
+        {/* PUBLIC ROUTES */}
         <Route path="/" element={<LoginSelection />} />
         <Route path="/farmer-login" element={<FarmerLogin />} />
         <Route path="/register" element={<Register />} />
-        {/* ================= FARMER ROUTES ================= */}
+        <Route path="/admin-login" element={<AdminLogin />} />
+
+        {/* FARMER ROUTES */}
         <Route
           path="/dashboard"
           element={
@@ -54,6 +39,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/weather"
+          element={
+            <ProtectedRoute role="farmer">
+              <Weather />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/supply-chain"
           element={
@@ -62,17 +57,16 @@ function App() {
             </ProtectedRoute>
           }
         />
-<<<<<<< HEAD
-=======
-<Route
-  path="/market-analysis"
-  element={
-    <ProtectedRoute role="farmer">
-      <CropMarketAnalysis />
-    </ProtectedRoute>
-  }
-/>
->>>>>>> 695f543 (gsap)
+
+        <Route
+          path="/market-analysis"
+          element={
+            <ProtectedRoute role="farmer">
+              <CropMarketAnalysis />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/prediction"
           element={
@@ -81,6 +75,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/analytics"
           element={
@@ -89,7 +84,8 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* ================= ADMIN ROUTES ================= */}
+
+        {/* ADMIN ROUTES */}
         <Route
           path="/admin"
           element={
@@ -98,6 +94,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/admin/create-admin"
+          element={
+            <ProtectedRoute role="admin">
+              <CreateAdmin />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/admin/farmers"
           element={
@@ -106,6 +112,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/admin/shipments"
           element={
@@ -114,7 +121,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* ✅ ADMIN ANALYTICS (FIXED) */}
+
         <Route
           path="/admin/analytics"
           element={
