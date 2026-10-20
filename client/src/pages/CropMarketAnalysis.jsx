@@ -17,12 +17,19 @@ import {
 } from "lucide-react";
 import MainLayout from "../layouts/MainLayout";
 
-const API_URL = "http://localhost:5000/api/market/crop-analysis";
+// Set VITE_API_URL=http://localhost:5000/api in your client .env file.
+  const API_URL = `${
+    import.meta.env.VITE_API_URL || "http://localhost:5000/api"
+  }/market/crop-analysis`;
+
 const popularCrops = ["Wheat", "Rice", "Soybean", "Cotton", "Maize"];
 
 const money = (value) => {
+  if (value == null || value === "") return "—";
+
   const number = Number(value);
-  if (value == null || value === "" || !Number.isFinite(number)) return "—";
+
+  if (!Number.isFinite(number)) return "—";
 
   return `₹${number.toLocaleString("en-IN", {
     maximumFractionDigits: 2,
@@ -31,7 +38,9 @@ const money = (value) => {
 
 const percent = (value) => {
   if (value == null || value === "") return "—";
+
   const number = Number(value);
+
   return Number.isFinite(number) ? `${number.toFixed(2)}%` : "—";
 };
 
@@ -43,10 +52,15 @@ const validPriceRecords = (records) => {
       (item) =>
         item &&
         item.year != null &&
+        item.year !== "" &&
         item.price != null &&
         item.price !== "" &&
         Number.isFinite(Number(item.price))
     )
+    .map((item) => ({
+      ...item,
+      price: Number(item.price),
+    }))
     .sort((a, b) => {
       const yearA = Number(a.year);
       const yearB = Number(b.year);
@@ -57,6 +71,183 @@ const validPriceRecords = (records) => {
 
       return String(a.year).localeCompare(String(b.year));
     });
+};
+
+const MetricCard = ({ title, value, subtitle, icon, color }) => {
+  const themes = {
+    emerald: "bg-emerald-50 text-emerald-700",
+    green: "bg-green-50 text-green-700",
+    orange: "bg-orange-50 text-orange-700",
+    blue: "bg-sky-50 text-sky-700",
+    purple: "bg-violet-50 text-violet-700",
+  };
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
+      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md sm:p-6"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-semibold text-slate-500">{title}</p>
+        <div
+          className={`rounded-xl p-2.5 ${
+            themes[color] || themes.emerald
+          }`}
+        >
+          {icon}
+        </div>
+      </div>
+
+      <p className="mt-5 break-words text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+        {value}
+      </p>
+
+      <p className="mt-2 text-xs leading-5 text-slate-500">{subtitle}</p>
+    </motion.article>
+  );
+};
+
+const PriceChart = ({ title, subtitle, data, minPrice, priceRange, type }) => {
+  const isFuture = type === "future";
+
+  const prices = data.map((item) => item.price);
+  const localMin = prices.length ? Math.min(...prices) : 0;
+  const localMax = prices.length ? Math.max(...prices) : 0;
+
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+        <div>
+          <h3 className="text-xl font-extrabold">{title}</h3>
+          <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+        </div>
+
+        <span
+          className={`self-start rounded-full px-3 py-1.5 text-xs font-bold ${
+            isFuture
+              ? "bg-violet-50 text-violet-700"
+              : "bg-emerald-50 text-emerald-700"
+          }`}
+        >
+          {isFuture ? "PREDICTED DATA" : "HISTORICAL DATA"}
+        </span>
+      </div>
+
+      {data.length === 0 ? (
+        <div className="mt-6 rounded-xl bg-slate-50 p-8 text-center text-sm text-slate-500">
+          No {isFuture ? "forecast" : "historical"} price records available.
+        </div>
+      ) : (
+        <>
+          <div className="mt-8 flex h-64 items-end gap-3 overflow-x-auto border-b border-l border-slate-200 px-3 sm:gap-5">
+            {data.map((item, index) => {
+              const price = item.price;
+
+              const height = Math.max(
+                5,
+                ((price - minPrice) / priceRange) * 75 + 15
+              );
+
+              return (
+                <div
+                  key={`${item.year}-${index}`}
+                  title={`${item.year}: ${money(price)}`}
+                  className="group flex h-full min-w-16 flex-1 flex-col items-center justify-end"
+                >
+                  <span className="mb-2 whitespace-nowrap text-[10px] font-bold text-slate-600 sm:text-xs">
+                    {money(price)}
+                  </span>
+
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: `${height}%` }}
+                    transition={{
+                      duration: 0.65,
+                      delay: Math.min(index * 0.04, 0.4),
+                    }}
+                    className={`w-full max-w-14 rounded-t-lg transition-opacity group-hover:opacity-75 ${
+                      isFuture
+                        ? "bg-gradient-to-t from-violet-700 to-fuchsia-400"
+                        : "bg-gradient-to-t from-emerald-700 to-teal-400"
+                    }`}
+                  />
+
+                  <span className="mt-2 w-full truncate text-center text-[10px] font-semibold text-slate-500 sm:text-xs">
+                    {item.year}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 flex flex-wrap justify-between gap-2 text-xs text-slate-500">
+            <span>{data.length} data points</span>
+            <span>
+              Range: {money(localMin)} – {money(localMax)}
+            </span>
+          </div>
+        </>
+      )}
+    </section>
+  );
+};
+
+const PriceTable = ({ title, subtitle, data, type }) => {
+  const isFuture = type === "future";
+
+  return (
+    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div
+        className={`border-b p-5 sm:p-6 ${
+          isFuture ? "border-violet-100 bg-violet-50/70" : "border-slate-100"
+        }`}
+      >
+        <h3 className="text-xl font-extrabold">{title}</h3>
+        <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+      </div>
+
+      {data.length === 0 ? (
+        <p className="p-6 text-sm text-slate-500">No records available.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[360px] text-left text-sm">
+            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                <th className="px-5 py-4">Year / Date</th>
+                <th className="px-5 py-4 text-right">
+                  {isFuture ? "Estimated price (₹)" : "Price (₹)"}
+                </th>
+                <th className="px-5 py-4 text-right">Record type</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {data.map((item, index) => (
+                <tr
+                  key={`${item.year}-${index}`}
+                  className="border-t border-slate-100 transition hover:bg-slate-50"
+                >
+                  <td className="px-5 py-4 font-semibold">{item.year}</td>
+                  <td
+                    className={`px-5 py-4 text-right font-bold ${
+                      isFuture ? "text-violet-700" : "text-slate-800"
+                    }`}
+                  >
+                    {money(item.price)}
+                  </td>
+                  <td className="px-5 py-4 text-right text-slate-500">
+                    {isFuture ? "Predicted" : "Historical"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
 };
 
 const CropMarketAnalysis = () => {
@@ -85,26 +276,31 @@ const CropMarketAnalysis = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({ crop: cropName }),
       });
 
-      const data = await response.json().catch(() => ({}));
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
         throw new Error(
-          data.error ||
-            data.message ||
+          data?.error ||
+            data?.message ||
             `Request failed with status ${response.status}`
         );
+      }
+
+      if (!data || typeof data !== "object" || Array.isArray(data)) {
+        throw new Error("The backend returned an invalid response.");
       }
 
       const historical = validPriceRecords(data.historical);
       const future = validPriceRecords(data.future);
 
-      if (historical.length === 0 && future.length === 0) {
+      if (!historical.length && !future.length) {
         throw new Error(
-          "API ne valid historical ya forecast prices return nahi kiye. Backend response check karein."
+          "No valid historical or forecast prices were returned. Check the backend response."
         );
       }
 
@@ -115,11 +311,11 @@ const CropMarketAnalysis = () => {
         future,
       });
     } catch (err) {
-      const message = String(err.message || "");
+      const message = String(err?.message || "");
 
       setError(
         message.includes("Failed to fetch")
-          ? "Backend se connection nahi ho raha. Check karein ki server port 5000 par running hai aur CORS enabled hai."
+          ? "Cannot connect to the backend. Check that your server is running on port 5000 and CORS is configured correctly."
           : message || "Crop analysis failed. Please try again."
       );
     } finally {
@@ -130,32 +326,25 @@ const CropMarketAnalysis = () => {
   const history = result?.historical || [];
   const future = result?.future || [];
 
-  const latestHistorical = history.length
-    ? history[history.length - 1]
-    : null;
+  const latestHistorical = history.at(-1) || null;
+  const lastPrediction = future.at(-1) || null;
 
-  const lastPrediction = future.length
-    ? future[future.length - 1]
-    : null;
+  const growth =
+    result?.growth_percent == null || result.growth_percent === ""
+      ? NaN
+      : Number(result.growth_percent);
 
-  const growth = Number(result?.growth_percent);
-  const hasGrowth =
-    result?.growth_percent != null &&
-    result?.growth_percent !== "" &&
-    Number.isFinite(growth);
+  const hasGrowth = Number.isFinite(growth);
 
   const historicalIsRising =
     history.length > 1 &&
-    Number(history[history.length - 1].price) >=
-      Number(history[0].price);
+    history.at(-1).price >= history[0].price;
 
-  const allPrices = [...history, ...future]
-    .map((item) => Number(item.price))
-    .filter(Number.isFinite);
+  const allPrices = [...history, ...future].map((item) => item.price);
 
   const minPrice = allPrices.length ? Math.min(...allPrices) : 0;
   const maxPrice = allPrices.length ? Math.max(...allPrices) : 0;
-  const priceRange = maxPrice - minPrice || 1;
+  const priceRange = maxPrice - minPrice || Math.abs(maxPrice) || 1;
 
   return (
     <MainLayout>
@@ -183,7 +372,7 @@ const CropMarketAnalysis = () => {
                 </h1>
 
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-emerald-100 sm:text-base">
-                  Analyze crop prices, explore historical records and review
+                  Analyze crop prices, explore historical records, and review
                   model-generated future estimates from your market API.
                 </p>
               </div>
@@ -200,7 +389,6 @@ const CropMarketAnalysis = () => {
               <div className="rounded-xl bg-emerald-100 p-3 text-emerald-700">
                 <Search size={22} />
               </div>
-
               <div>
                 <h2 className="text-xl font-extrabold">Analyze a Crop</h2>
                 <p className="text-sm text-slate-500">
@@ -276,9 +464,12 @@ const CropMarketAnalysis = () => {
             )}
           </section>
 
-          {/* Loading */}
+          {/* Loading skeletons */}
           {loading && (
-            <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <section
+              aria-label="Loading crop analysis"
+              className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+            >
               {[1, 2, 3, 4].map((item) => (
                 <div
                   key={item}
@@ -351,11 +542,7 @@ const CropMarketAnalysis = () => {
 
                 <MetricCard
                   title="Price Volatility"
-                  value={
-                    result.volatility != null
-                      ? money(result.volatility)
-                      : "—"
-                  }
+                  value={money(result.volatility)}
                   subtitle="API-reported volatility"
                   icon={<Activity size={21} />}
                   color="blue"
@@ -381,7 +568,6 @@ const CropMarketAnalysis = () => {
                     <div className="rounded-xl bg-indigo-100 p-3 text-indigo-700">
                       <Activity size={22} />
                     </div>
-
                     <div>
                       <h3 className="text-lg font-extrabold">
                         Market Trend Summary
@@ -399,17 +585,19 @@ const CropMarketAnalysis = () => {
 
                     <span
                       className={`rounded-full px-4 py-2 text-sm font-bold ${
-                        history.length > 1 && historicalIsRising
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-orange-50 text-orange-700"
+                        history.length < 2
+                          ? "bg-slate-100 text-slate-600"
+                          : historicalIsRising
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-orange-50 text-orange-700"
                       }`}
                     >
                       Historical direction:{" "}
-                      {history.length > 1
-                        ? historicalIsRising
+                      {history.length < 2
+                        ? "Insufficient data"
+                        : historicalIsRising
                           ? "Upward"
-                          : "Downward"
-                        : "Insufficient data"}
+                          : "Downward"}
                     </span>
                   </div>
 
@@ -429,7 +617,7 @@ const CropMarketAnalysis = () => {
 
                   <p className="mt-4 text-sm leading-7 text-emerald-900">
                     Compare market estimates with current local mandi prices,
-                    crop quality, transport costs and applicable MSP before
+                    crop quality, transport costs, and applicable MSP before
                     deciding when to sell.
                   </p>
 
@@ -439,7 +627,7 @@ const CropMarketAnalysis = () => {
                 </div>
               </section>
 
-              {/* Historical chart */}
+              {/* Charts */}
               <PriceChart
                 title="Historical Price Trend"
                 subtitle="Observed values returned by your API"
@@ -449,7 +637,6 @@ const CropMarketAnalysis = () => {
                 type="history"
               />
 
-              {/* Future chart */}
               <PriceChart
                 title="Future Price Forecast"
                 subtitle="Predictions returned by your forecasting service"
@@ -463,14 +650,13 @@ const CropMarketAnalysis = () => {
                 <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
                   <Info size={20} className="mt-0.5 shrink-0" />
                   <p>
-                    Backend ne future predictions return nahi ki. Forecasting
-                    model aur API response mein <code>future</code> array check
-                    karein.
+                    No future predictions were returned. Check the forecasting
+                    model and the backend response.
                   </p>
                 </div>
               )}
 
-              {/* Historical table */}
+              {/* Tables */}
               <PriceTable
                 title="Historical Price Records"
                 subtitle={`${history.length} historical records supplied by the API`}
@@ -478,7 +664,6 @@ const CropMarketAnalysis = () => {
                 type="history"
               />
 
-              {/* Forecast table */}
               {future.length > 0 && (
                 <PriceTable
                   title="Forecast Records"
@@ -490,7 +675,7 @@ const CropMarketAnalysis = () => {
 
               <p className="px-1 text-xs leading-5 text-slate-500">
                 Data quality depends on the connected API. Verify the market,
-                price unit, crop variety, observation dates and forecasting
+                price unit, crop variety, observation dates, and forecasting
                 method before relying on estimates.
               </p>
             </motion.div>
@@ -516,192 +701,6 @@ const CropMarketAnalysis = () => {
         </div>
       </main>
     </MainLayout>
-  );
-};
-
-const MetricCard = ({ title, value, subtitle, icon, color }) => {
-  const themes = {
-    emerald: "bg-emerald-50 text-emerald-700",
-    green: "bg-green-50 text-green-700",
-    orange: "bg-orange-50 text-orange-700",
-    blue: "bg-sky-50 text-sky-700",
-    purple: "bg-violet-50 text-violet-700",
-  };
-
-  return (
-    <motion.article
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md sm:p-6"
-    >
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-slate-500">{title}</p>
-        <div className={`rounded-xl p-2.5 ${themes[color] || themes.emerald}`}>
-          {icon}
-        </div>
-      </div>
-
-      <p className="mt-5 break-words text-3xl font-black tracking-tight text-slate-900">
-        {value}
-      </p>
-
-      <p className="mt-2 text-xs leading-5 text-slate-500">{subtitle}</p>
-    </motion.article>
-  );
-};
-
-const PriceChart = ({
-  title,
-  subtitle,
-  data,
-  minPrice,
-  priceRange,
-  type,
-}) => {
-  const isFuture = type === "future";
-
-  const prices = data
-    .map((item) => Number(item.price))
-    .filter(Number.isFinite);
-
-  const localMin = prices.length ? Math.min(...prices) : 0;
-  const localMax = prices.length ? Math.max(...prices) : 0;
-
-  return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <div>
-          <h3 className="text-xl font-extrabold">{title}</h3>
-          <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
-        </div>
-
-        <span
-          className={`self-start rounded-full px-3 py-1.5 text-xs font-bold ${
-            isFuture
-              ? "bg-violet-50 text-violet-700"
-              : "bg-emerald-50 text-emerald-700"
-          }`}
-        >
-          {isFuture ? "PREDICTED DATA" : "HISTORICAL DATA"}
-        </span>
-      </div>
-
-      {data.length === 0 ? (
-        <div className="mt-6 rounded-xl bg-slate-50 p-8 text-center text-sm text-slate-500">
-          No {isFuture ? "forecast" : "historical"} price records available.
-        </div>
-      ) : (
-        <>
-          <div className="mt-8 flex h-64 items-end gap-2 overflow-x-auto border-b border-l border-slate-200 px-2 sm:gap-4">
-            {data.map((item, index) => {
-              const price = Number(item.price);
-              const height = Math.max(
-                8,
-                ((price - minPrice) / priceRange) * 75 + 20
-              );
-
-              return (
-                <div
-                  key={`${item.year}-${index}`}
-                  title={`${item.year}: ${money(price)}`}
-                  className="group flex h-full min-w-12 flex-1 flex-col items-center justify-end"
-                >
-                  <span className="mb-2 whitespace-nowrap text-[10px] font-bold text-slate-600 sm:text-xs">
-                    {money(price)}
-                  </span>
-
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: `${height}%` }}
-                    transition={{
-                      duration: 0.65,
-                      delay: Math.min(index * 0.04, 0.4),
-                    }}
-                    className={`w-full max-w-14 rounded-t-lg transition-opacity group-hover:opacity-75 ${
-                      isFuture
-                        ? "bg-gradient-to-t from-violet-700 to-fuchsia-400"
-                        : "bg-gradient-to-t from-emerald-700 to-teal-400"
-                    }`}
-                  />
-
-                  <span className="mt-2 w-full truncate text-center text-[10px] font-semibold text-slate-500 sm:text-xs">
-                    {item.year}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
-            <span>{data.length} data points</span>
-            <span>
-              Range: {money(localMin)} – {money(localMax)}
-            </span>
-          </div>
-        </>
-      )}
-    </section>
-  );
-};
-
-const PriceTable = ({ title, subtitle, data, type }) => {
-  const isFuture = type === "future";
-
-  return (
-    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div
-        className={`border-b p-5 sm:p-6 ${
-          isFuture
-            ? "border-violet-100 bg-violet-50/70"
-            : "border-slate-100"
-        }`}
-      >
-        <h3 className="text-xl font-extrabold">{title}</h3>
-        <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
-      </div>
-
-      {data.length === 0 ? (
-        <p className="p-6 text-sm text-slate-500">No records available.</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[360px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-              <tr>
-                <th className="px-5 py-4">Year / Date</th>
-                <th className="px-5 py-4 text-right">
-                  {isFuture ? "Estimated price (₹)" : "Price (₹)"}
-                </th>
-                <th className="px-5 py-4 text-right">Record type</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {data.map((item, index) => (
-                <tr
-                  key={`${item.year}-${index}`}
-                  className="border-t border-slate-100 transition hover:bg-slate-50"
-                >
-                  <td className="px-5 py-4 font-semibold">{item.year}</td>
-
-                  <td
-                    className={`px-5 py-4 text-right font-bold ${
-                      isFuture ? "text-violet-700" : "text-slate-800"
-                    }`}
-                  >
-                    {money(item.price)}
-                  </td>
-
-                  <td className="px-5 py-4 text-right text-slate-500">
-                    {isFuture ? "Predicted" : "Historical"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </section>
   );
 };
 
